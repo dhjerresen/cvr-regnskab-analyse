@@ -1,0 +1,138 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<tp:taxonomyPackage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tp="http://xbrl.org/2016/taxonomy-package" xsi:schemaLocation="http://xbrl.org/2016/taxonomy-package http://www.xbrl.org/2016/taxonomy-package.xsd" xml:lang="en">
+  <tp:identifier>http://www.erst.dk/XBRL20241001</tp:identifier>
+	<tp:name>Danish generally accepted accounting principles (DKGAAP)</tp:name>
+	<tp:name xml:lang="dk">ÅRL taksonomien (DKGAAP)</tp:name>
+  <tp:description>The taxonomy contains all the annual report information, including company information, description of accounting policies, management report, statements, disclosures, approval dates, names of management and auditors etc. In addition, the taxonomy contains information on financial information to Statistics Denmark.</tp:description>
+  <tp:description xml:lang="dk">Taksonomien indeholder alle årsrapportens informationer, herunder virksomhedsoplysninger, beskrivelse af anvendt regnskabspraksis, ledelsesberetning, påtegninger, notetekster, godkendelsesdatoer, navne på ledelse og revisor osv. Herudover indeholder taksonomien information om regnskabsoplysninger til Danmarks Statistik.</tp:description>
+	<tp:version>2024.10.01</tp:version>
+	<tp:publisher>Danish Business Authority</tp:publisher>
+	<tp:publisher xml:lang="dk">Erhvervsstyrelsen</tp:publisher>
+  <tp:publisherURL>http://www.erst.dk</tp:publisherURL>
+	<tp:publisherCountry>DK</tp:publisherCountry>
+	<tp:publicationDate>2024-10-01</tp:publicationDate>
+	<tp:entryPoints>
+		<tp:entryPoint>
+			<tp:name>DKGAAP: Balance sheet account by current and long term form, Income statement by function, including managements review and statistics</tp:name>
+			<tp:name xml:lang="dk">ÅRL: Balance (kontoform fordelt på kort- og langfristet) - Resultatopgørelse (funktionsopdelt)</tp:name>
+			<tp:entryPointDocument href="http://archprod.service.eogs.dk/taxonomy/20241001/entryDanishGAAPBalanceSheetAccountByCurrentAndLongTermFormIncomeStatementByFunctionIncludingManagementsReviewStatisticsAndTax20241001.xsd">
+			</tp:entryPointDocument>
+		</tp:entryPoint>
+		<tp:entryPoint>
+			<tp:name>DKGAAP: Balance sheet account by current and long term form, Income statement by nature, including managements review and statistics</tp:name>
+			<tp:name xml:lang="dk">ÅRL: Balance (kontoform fordelt på kort- og langfristet) - Resultatopgørelse (artsopdelt)</tp:name>
+			<tp:entryPointDocument href="http://archprod.service.eogs.dk/taxonomy/20241001/entryDanishGAAPBalanceSheetAccountByCurrentAndLongTermFormIncomeStatementByNatureIncludingManagementsReviewStatisticsAndTax20241001.xsd">
+			</tp:entryPointDocument>
+		</tp:entryPoint>
+		<tp:entryPoint>
+			<tp:name>DKGAAP: Balance sheet account form, Income statement by function, including managements review and statistics</tp:name>
+			<tp:name xml:lang="dk">ÅRL: Balance (kontoform) - Resultatopgørelse (funktionsopdelt)</tp:name>
+			<tp:entryPointDocument href="http://archprod.service.eogs.dk/taxonomy/20241001/entryDanishGAAPBalanceSheetAccountFormIncomeStatementByFunctionIncludingManagementsReviewStatisticsAndTax20241001.xsd">
+			</tp:entryPointDocument>
+		</tp:entryPoint>
+		<tp:entryPoint>
+			<tp:name>DKGAAP: Balance sheet account form, Income statement by nature, including managements review and statistics</tp:name>
+			<tp:name xml:lang="dk">ÅRL: Balance (kontoform) - Resultatopgørelse (artsopdelt)</tp:name>
+			<tp:entryPointDocument href="http://archprod.service.eogs.dk/taxonomy/20241001/entryDanishGAAPBalanceSheetAccountFormIncomeStatementByNatureIncludingManagementsReviewStatisticsAndTax20241001.xsd">
+			</tp:entryPointDocument>
+		</tp:entryPoint>
+		<tp:entryPoint>
+			<tp:name>DKGAAP: Excluding Balance sheet and Income statement, including managements review and statistics</tp:name>
+			<tp:name xml:lang="dk">ÅRL: Uden Balance og Resultatopgørelse</tp:name>
+			<tp:entryPointDocument href="http://archprod.service.eogs.dk/taxonomy/20241001/entryDanishGAAPExcludingBalanceSheetIncomeStatementIncludingManagementsReview20241001.xsd">
+			</tp:entryPointDocument>
+		</tp:entryPoint>	
+		<tp:entryPoint>
+			<tp:name>DKGAAP: Required information</tp:name>
+			<tp:name xml:lang="dk">ÅRL: Krævet information</tp:name>
+			<tp:entryPointDocument href="http://archprod.service.eogs.dk/taxonomy/20241001/entryDKGAAPRequiredInformation20241001.xsd">
+			</tp:entryPointDocument>
+		</tp:entryPoint>	
+		<tp:entryPoint>
+			<tp:name>Børne- og Undervisningsministeriet: Paradigme til årsrapport 2024 for Institutioner for forberedende grunduddannelse, Institutioner for erhvervsrettet uddannelse og Institutioner for almengymnasiale uddannelser og almen voksenuddannelse m.v.</tp:name>
+			<tp:name xml:lang="dk">Børne- og Undervisningsministeriet: Paradigme til årsrapport 2024 for Institutioner for forberedende grunduddannelse, Institutioner for erhvervsrettet uddannelse og Institutioner for almengymnasiale uddannelser og almen voksenuddannelse m.v.</tp:name>
+			<tp:entryPointDocument href="http://archprod.service.eogs.dk/taxonomy/20241001/entryUVMREG20241001.xsd">
+			</tp:entryPointDocument>
+		</tp:entryPoint>
+		<tp:entryPoint>
+			<tp:name>Kulturministeriet: Paradigme til årsrapport 2024 for folkehøjskoler</tp:name>
+			<tp:name xml:lang="dk">Kulturministeriet: Paradigme til årsrapport 2024 for folkehøjskoler</tp:name>
+			<tp:entryPointDocument href="http://archprod.service.eogs.dk/taxonomy/20241001/entryUVMFHS20241001.xsd"> </tp:entryPointDocument>
+		</tp:entryPoint>
+		<tp:entryPoint>
+			<tp:name>Børne- og Undervisningsministeriet: Paradigme til årsrapport 2024 for frie fagskoler</tp:name>
+			<tp:name xml:lang="dk">Børne- og Undervisningsministeriet: Paradigme til årsrapport 2024 for frie fagskoler</tp:name>
+			<tp:entryPointDocument href="http://archprod.service.eogs.dk/taxonomy/20241001/entryUVMFF20241001.xsd"> </tp:entryPointDocument>
+		</tp:entryPoint>
+		<tp:entryPoint>
+			<tp:name>Børne- og Undervisningsministeriet: Paradigme til årsrapport 2024 for private institutioner for gymnasiale uddannelser</tp:name>
+			<tp:name xml:lang="dk">Børne- og Undervisningsministeriet: Paradigme til årsrapport 2024 for private institutioner for gymnasiale uddannelser</tp:name>
+			<tp:entryPointDocument href="http://archprod.service.eogs.dk/taxonomy/20241001/entryUVMPGYM20241001.xsd"> </tp:entryPointDocument>
+		</tp:entryPoint>
+		<tp:entryPoint>
+			<tp:name>Børne- og Undervisningsministeriet: Paradigme til årsrapport 2024 for efterskoler</tp:name>
+			<tp:name xml:lang="dk">Børne- og Undervisningsministeriet: Paradigme til årsrapport 2024 for efterskoler</tp:name>
+			<tp:entryPointDocument href="http://archprod.service.eogs.dk/taxonomy/20241001/entryUVMEFT20241001.xsd"> </tp:entryPointDocument>
+		</tp:entryPoint>		
+		<tp:entryPoint>
+			<tp:name>Børne- og Undervisningsministeriet: Paradigme til årsrapport 2024 for kombinerede skoler</tp:name>
+			<tp:name xml:lang="dk">Børne- og Undervisningsministeriet: Paradigme til årsrapport 2024 for kombinerede skoler</tp:name>
+			<tp:entryPointDocument href="http://archprod.service.eogs.dk/taxonomy/20241001/entryUVMKOMB20241001.xsd"> </tp:entryPointDocument>
+		</tp:entryPoint>
+		<tp:entryPoint>
+			<tp:name>Børne- og Undervisningsministeriet: Paradigme til årsrapport 2024 for friskoler og private grundskoler</tp:name>
+			<tp:name xml:lang="dk">Børne- og Undervisningsministeriet: Paradigme til årsrapport 2024 for friskoler og private grundskoler</tp:name>
+			<tp:entryPointDocument href="http://archprod.service.eogs.dk/taxonomy/20241001/entryUVMGRUND20241001.xsd"> </tp:entryPointDocument>
+		</tp:entryPoint>
+		<tp:entryPoint>
+			<tp:name>Børne- og Undervisningsministeriet: ALL</tp:name>
+			<tp:name xml:lang="dk">Børne- og Undervisningsministeriet: ALL</tp:name>
+			<tp:entryPointDocument href="http://archprod.service.eogs.dk/taxonomy/20241001/entryAll_UVM.xsd"> </tp:entryPointDocument>
+		</tp:entryPoint>
+		<tp:entryPoint>
+			<tp:name>DFSA: ALL</tp:name>
+			<tp:name xml:lang="dk">Finanstilsynet: ALL</tp:name>
+			<tp:entryPointDocument href="http://archprod.service.eogs.dk/taxonomy/20241001/entryAll_DFSA.xsd"> </tp:entryPointDocument>
+		</tp:entryPoint>
+		<tp:entryPoint>
+			<tp:name>DFSA: Banks, Mortgage-credit institutions, financial holding companies (primarily credit), Investment firms, Investment holding companies, Ship Finance institute and Credit Institution for Local and Regional Authorities in Denmark</tp:name>
+			<tp:name xml:lang="dk">Finanstilsynet: Pengeinstitutter, realkreditinstitutter, finansielle holdingvirksomheder (primært kredit), fondsmæglerselskaber, fondsmæglerholdingvirksomheder, et skibsfinansieringsinstitut og kreditforeningen af kommuner og regioner i Danmark</tp:name>
+			<tp:entryPointDocument href="http://archprod.service.eogs.dk/taxonomy/20241001/entryDFSACreditInstitutionsInvestmentFirmsEtc20241001.xsd"> </tp:entryPointDocument>
+		</tp:entryPoint>
+		<tp:entryPoint>
+			<tp:name>DFSA: Alternative investment fund managers and investment management companies</tp:name>
+			<tp:name xml:lang="dk">Finanstilsynet: Forvaltere af alternative investeringsforeninger og investeringsforvaltningsselskaber</tp:name>
+			<tp:entryPointDocument href="http://archprod.service.eogs.dk/taxonomy/20241001/entryDFSAManagementCompanies20241001.xsd"> </tp:entryPointDocument>
+		</tp:entryPoint>
+		<tp:entryPoint>
+			<tp:name>DFSA: Insurance companies, transversal pension funds, insurance holding companies and financial holding companies (primarily insurance)</tp:name>
+			<tp:name xml:lang="dk">Finanstilsynet: Forsikringsselskaber, tværgående pensionskasser,  forsikringholdingvirksomheder, finansielle holdingvirksomheder (primært forsikring)</tp:name>
+			<tp:entryPointDocument href="http://archprod.service.eogs.dk/taxonomy/20241001/entryDFSAInsuranceCompaniesTransversalPensionFundsEtc20241001.xsd"> </tp:entryPointDocument>
+		</tp:entryPoint>
+		<tp:entryPoint>
+			<tp:name>DFSA: Life insurance companies</tp:name>
+			<tp:name xml:lang="dk">Finanstilsynet: Livsforsikringsselskaber</tp:name>
+			<tp:entryPointDocument href="http://archprod.service.eogs.dk/taxonomy/20241001/entryDFSALifeInsuranceCompanies20241001.xsd"> </tp:entryPointDocument>
+		</tp:entryPoint>
+		<tp:entryPoint>
+			<tp:name>DFSA: Non-life insurance companies</tp:name>
+			<tp:name xml:lang="dk">Finanstilsynet: Skadesforsikringsselskaber</tp:name>
+			<tp:entryPointDocument href="http://archprod.service.eogs.dk/taxonomy/20241001/entryDFSANonlifeInsuranceCompanies20241001.xsd"> </tp:entryPointDocument>
+		</tp:entryPoint>
+		<tp:entryPoint>
+			<tp:name>DFSA: Company Pension Funds</tp:name>
+			<tp:name xml:lang="dk">Finanstilsynet: Firmapensionskasser</tp:name>
+			<tp:entryPointDocument href="http://archprod.service.eogs.dk/taxonomy/20241001/entryDFSACompanyPensionFunds20241001.xsd"> </tp:entryPointDocument>
+		</tp:entryPoint>
+		<tp:entryPoint>
+			<tp:name>DFSA: Danish UCITS (Excluding certain investment funds)</tp:name>
+			<tp:name xml:lang="dk">Finanstilsynet: Danske UCITS (undtagen værdipapirfonde)</tp:name>
+			<tp:entryPointDocument href="http://archprod.service.eogs.dk/taxonomy/20241001/entryDFSADanishUcitsExcludingInvestmentFunds20241001.xsd"> </tp:entryPointDocument>
+		</tp:entryPoint>		
+		<tp:entryPoint>
+			<tp:name>DFSA: IFRS excluding financial statements</tp:name>
+			<tp:name xml:lang="dk">Finanstilsynet: IFRS aflæggere uden finansiel rapportering</tp:name>
+			<tp:entryPointDocument href="http://archprod.service.eogs.dk/taxonomy/20241001/entryDFSAExcludingFinancialStatements20241001.xsd"> </tp:entryPointDocument>
+		</tp:entryPoint>			
+	</tp:entryPoints>
+</tp:taxonomyPackage>
