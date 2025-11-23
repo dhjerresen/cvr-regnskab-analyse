@@ -9,7 +9,8 @@ from data_fetch.regnskab_api import hent_regnskaber
 from xbrl_processing.downloader import download_xbrl
 from xbrl_processing.parser import extract_xbrl_data
 from xbrl_processing.financial_parser import extract_financials
-
+from llm_summary import run_ai_model
+from summary_prompt import build_summary_prompt
 
 # ---------------------------------------------------------------------
 # Streamlit Page Setup
@@ -235,6 +236,29 @@ if st.session_state.financial_analysis:
         col3.write(dk_percent(py))
 
         st.markdown("</div>", unsafe_allow_html=True)
+
+# =====================================================================
+#                DISPLAY: AI-summary
+# =====================================================================
+
+if st.session_state.general_analysis and st.session_state.financial_analysis:
+    st.markdown("<div class='card'>", unsafe_allow_html=True)
+    st.markdown("### 🧠 AI-sammenfatning (Llama 3.1 8B)")
+
+    general = st.session_state.general_analysis
+    financial = st.session_state.financial_analysis
+
+    prompt = build_summary_prompt(general, financial)
+
+    if st.button("Generer sammenfatning"):
+        with st.spinner("Genererer analyse via Llama 3.1 8B..."):
+            try:
+                summary = run_ai_model(prompt)
+                st.write(summary)
+            except Exception as e:
+                st.error(f"Fejl ved AI-sammenfatning: {e}")
+
+    st.markdown("</div>", unsafe_allow_html=True)
 
 # =====================================================================
 #                     PDF DOWNLOAD SECTION
