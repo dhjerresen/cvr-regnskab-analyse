@@ -159,6 +159,7 @@ if st.session_state.general_analysis:
     st.write(f"**📝 Revisionstype:** {a.get('Revisionstype')}")
     st.write(f"**👤 Revisortype:** {a.get('Revisortype')}")
     st.write(f"**⚠️ Korrektion af væsentlig fejl:** {a.get('Korrektion af væsentlig fejl')}")
+    st.write(f"**🚨 Going concern:** {a.get('Going concern usikkerhed')}")
     st.write(f"**🏭 Væsentlig aktivitet:** {a.get('Væsentlig aktivitet')}")
 
     st.markdown("</div>", unsafe_allow_html=True)
