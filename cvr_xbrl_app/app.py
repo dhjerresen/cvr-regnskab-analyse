@@ -261,23 +261,71 @@ if st.session_state.general_analysis and st.session_state.financial_analysis:
     st.markdown("</div>", unsafe_allow_html=True)
 
 # =====================================================================
-#                     PDF DOWNLOAD SECTION
+#             DOWNLOAD: Årsrapport (PDF → iXBRL → XBRL)
 # =====================================================================
 if st.session_state.regnskaber is not None:
     st.markdown("<div class='card'>", unsafe_allow_html=True)
-    st.markdown("### 📥 Download årsrapport (PDF)")
+    st.markdown("### 📥 Download årsrapport")
 
     df = st.session_state.regnskaber
-    pdf_rows = df[df["Filtype"] == "PDF"]
 
-    if not pdf_rows.empty:
-        years = sorted(pdf_rows["Slutdato"].unique(), reverse=True)
-        selected_year = st.selectbox("Vælg år for PDF-rapport:", years)
+    # Accept both PDF and XBRL rows
+    download_rows = df[df["Filtype"].isin(["PDF", "XBRL"])].copy()
 
-        chosen = pdf_rows[pdf_rows["Slutdato"] == selected_year].iloc[0]
-        st.markdown(f"[📄 Download PDF]({chosen['Url']})")
+    if not download_rows.empty:
+
+        # --- Detect iXBRL based on file extension (.xhtml, .html, .htm) ---
+        def detect_ixbrl(url: str) -> bool:
+            if not isinstance(url, str):
+                return False
+            url_low = url.lower()
+            # Strip query params and fragments
+            base = url_low.split("?", 1)[0].split("#", 1)[0]
+            return base.endswith(".xhtml") or base.endswith(".html") or base.endswith(".htm")
+
+        download_rows["is_ixbrl"] = download_rows["Url"].apply(detect_ixbrl)
+
+        # --- Ranking priority:
+        # 1. PDF
+        # 2. iXBRL (.xhtml/.html/.htm)
+        # 3. XBRL raw (typically .xml)
+        def rank(row):
+            if row["Filtype"] == "PDF":
+                return 0
+            if row["is_ixbrl"]:
+                return 1
+            return 2
+
+        download_rows["priority"] = download_rows.apply(rank, axis=1)
+
+        # Sort newest year first, then PDF → iXBRL → XBRL
+        download_rows = download_rows.sort_values(
+            ["Slutdato", "priority"],
+            ascending=[False, True]
+        )
+
+        # Keep only best file per year
+        best_per_year = download_rows.drop_duplicates(subset=["Slutdato"], keep="first")
+
+        # Dropdown with all years
+        years = sorted(best_per_year["Slutdato"].unique(), reverse=True)
+        selected_year = st.selectbox("Vælg år for årsrapport:", years)
+
+        chosen = best_per_year[best_per_year["Slutdato"] == selected_year].iloc[0]
+
+        # User-friendly label
+        if chosen["Filtype"] == "PDF":
+            label = "PDF"
+        elif chosen["is_ixbrl"]:
+            label = "iXBRL"
+        else:
+            label = "XBRL"
+
+        st.markdown(
+            f"[📄 Download {label}-rapport]({chosen['Url']})  \n"
+        )
 
     else:
-        st.info("Ingen PDF-rapporter fundet.")
+        st.info("Ingen årsrapporter fundet (PDF, iXBRL eller XBRL).")
 
     st.markdown("</div>", unsafe_allow_html=True)
