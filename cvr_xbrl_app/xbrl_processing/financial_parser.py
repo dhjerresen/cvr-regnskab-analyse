@@ -220,8 +220,8 @@ def extract_financials(filepath: str) -> dict:
                 return None
             return val / ref
 
-        og_cy = None if rev_cy is None else kpi(nr_cy, rev_cy)
-        og_py = None if rev_py is None else kpi(nr_py, rev_py)
+        og_cy = kpi(nr_cy, gp_cy)
+        og_py = kpi(nr_py, gp_py)
 
         sg_cy = kpi(eq_cy, assets_cy)
         sg_py = kpi(eq_py, assets_py)
