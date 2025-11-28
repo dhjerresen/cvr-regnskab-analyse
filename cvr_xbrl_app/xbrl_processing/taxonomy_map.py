@@ -91,6 +91,9 @@ MAIN_ACTIVITY = {
     # Danish GAAP
     "DescriptionOfPrimaryActivitiesOfEntity",
 
+    # DCCA-specific (used by this company)
+    "DisclosureOfMainActivitiesAndAccountingAndFinancialMatters"
+
     # IFRS/ESEF
     "NatureOfOperations",
     "PrincipalActivities",
@@ -141,4 +144,19 @@ ACCOUNTING_CLASS = {
 ACCOUNTING_CLASS_UPGRADE = {
     "SelectedElementsFromReportingClassC",
     "SelectedElementsFromReportingClassD",
+}
+
+# -------------------------------------------------------
+# Period start and end
+# -------------------------------------------------------
+
+PERIOD_START_TAGS = {
+    "ReportingPeriodStartDate",
+    "PrecedingReportingPeriodStartDate",
+}
+
+PERIOD_END_TAGS = {
+    "ReportingPeriodEndDate",
+    "PredingReportingPeriodEndDate",  # DCCA typo
+    "PrecedingReportingPeriodEndDate",
 }
