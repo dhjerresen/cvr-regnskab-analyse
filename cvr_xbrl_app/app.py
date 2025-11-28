@@ -156,22 +156,37 @@ if st.session_state.xbrl_financial:
     f = st.session_state.xbrl_financial
 
     st.subheader("💰 XBRL — Finansiel Analyse")
+
+    # --- Periods ---
     years = f.get("Years", {})
-    cy = years.get("CY", "")
-    py = years.get("PY", "")
+
+    cy = years.get("CY", {})
+    py = years.get("PY", {})
+
+    cy_start = cy.get("start", "")
+    cy_end   = cy.get("end", "")
+    py_start = py.get("start", "")
+    py_end   = py.get("end", "")
+
     currency = f.get("Valuta", "")
 
     st.write(f"**Valuta:** {currency}")
-    st.write(f"**År:** {cy} ➝ {py}")
 
+    st.write("### 🗓️ Regnskabsperioder")
+    st.write(f"- **CY:** {cy_start} → {cy_end}")
+    st.write(f"- **PY:** {py_start} → {py_end}")
+
+    # --- Indtjening ---
     st.markdown("### 📊 Indtjening")
     for label, vals in f["Indtjening"].items():
         st.write(f"- **{label}:** {dk_number(vals.get('CY'))} / {dk_number(vals.get('PY'))}")
 
+    # --- Balance ---
     st.markdown("### 📚 Balance")
     for label, vals in f["Balance"].items():
         st.write(f"- **{label}:** {dk_number(vals.get('CY'))} / {dk_number(vals.get('PY'))}")
 
+    # --- Nøgletal ---
     st.markdown("### 📈 Nøgletal")
     for label, vals in f["Nøgletal"].items():
         st.write(f"- **{label}:** {dk_percent(vals.get('CY'))} / {dk_percent(vals.get('PY'))}")

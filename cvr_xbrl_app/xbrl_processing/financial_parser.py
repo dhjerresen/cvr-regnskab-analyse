@@ -6,8 +6,11 @@ financial_parser.py — TWO-YEAR VERSION WITH 'UKENDT' REVENUE
 Extracts current year (CY) and previous year (PY) financials from
 Danish XBRL/iXBRL files using Arelle.
 
-Supports ÅRL §32 — if Nettoomsætning (Revenue) is not reported,
-the parser returns "Ukendt" instead of falling back to Bruttofortjeneste.
+RELIES ONLY ON EXPLICIT DANISH GAAP PERIOD TAGS:
+- ReportingPeriodStartDate
+- ReportingPeriodEndDate
+- PrecedingReportingPeriodStartDate
+- PredingReportingPeriodEndDate
 """
 
 from __future__ import annotations
@@ -26,6 +29,37 @@ from .taxonomy_map import (
     LIABILITIES,
 )
 
+
+# ---------------------------------------------------------
+# PERIOD DETECTION — Danish GAAP tags ONLY
+# ---------------------------------------------------------
+
+def _detect_years_from_dcca_tags(model):
+    """
+    Extract CY/PY using Danish GAAP period tags by scanning all facts.
+    """
+    cy_end = None
+    py_end = None
+
+    for fact in model.facts:
+        name = fact.qname.localName
+
+        if name == "ReportingPeriodEndDate":
+            try:
+                cy_end = datetime.fromisoformat(fact.value).date()
+            except Exception:
+                pass
+
+        elif name == "PredingReportingPeriodEndDate":
+            try:
+                py_end = datetime.fromisoformat(fact.value).date()
+            except Exception:
+                pass
+
+    cy_year = cy_end.year if cy_end else None
+    py_year = py_end.year if py_end else None
+
+    return cy_year, py_year
 
 # ---------------------------------------------------------
 # Helper functions
@@ -108,7 +142,7 @@ def _get_all_numeric_facts(model_xbrl, names: Iterable[str]) -> Dict[datetime.da
 
 
 # ---------------------------------------------------------
-# Select CY & PY
+# Select CY & PY values
 # ---------------------------------------------------------
 
 def _select_two_years(period_dict: dict) -> Tuple[
@@ -146,6 +180,8 @@ def extract_financials(filepath: str) -> dict:
     """
     Extract two-year financial statements + KPIs.
     Handles missing revenue (ÅRL §32) by returning 'Ukendt'.
+
+    RELIES EXCLUSIVELY ON DCCA PERIOD TAGS FOR FULL DATES.
     """
     try:
         model = load_model(filepath)
@@ -154,7 +190,7 @@ def extract_financials(filepath: str) -> dict:
         currency = _get_currency_from_units(model)
 
         # ---------------- INCOME STATEMENT ----------------
-        rev_cy, rev_py, rev_cy_year, rev_py_year = _select_two_years(
+        rev_cy, rev_py, _, _ = _select_two_years(
             _get_all_numeric_facts(model, REVENUE)
         )
         gp_cy, gp_py, _, _ = _select_two_years(
@@ -184,28 +220,46 @@ def extract_financials(filepath: str) -> dict:
                 return None
             return val / ref
 
-        # Overskudsgrad (requires nettoomsætning)
         og_cy = None if rev_cy is None else kpi(nr_cy, rev_cy)
         og_py = None if rev_py is None else kpi(nr_py, rev_py)
 
-        # Soliditetsgrad: equity / assets
         sg_cy = kpi(eq_cy, assets_cy)
         sg_py = kpi(eq_py, assets_py)
 
-        # Gældsgrad: liabilities / equity
         gg_cy = kpi(liab_cy, eq_cy)
         gg_py = kpi(liab_py, eq_py)
+
+        # -------------------------------------------------
+        # FULL DATE DETECTION — DCCA TAGS ONLY
+        # -------------------------------------------------
+        cy_start = None
+        cy_end = None
+        py_start = None
+        py_end = None
+
+        for fact in model.facts:
+            name = fact.qname.localName
+
+            if name == "ReportingPeriodStartDate":
+                cy_start = fact.value
+            elif name == "ReportingPeriodEndDate":
+                cy_end = fact.value
+            elif name == "PrecedingReportingPeriodStartDate":
+                py_start = fact.value
+            elif name == "PredingReportingPeriodEndDate":  # official DCCA typo
+                py_end = fact.value
+
+        years = {
+            "CY": {"start": cy_start, "end": cy_end},
+            "PY": {"start": py_start, "end": py_end},
+        }
 
         # ---------------- FINAL OUTPUT ----------------
         return {
             "Valuta": currency,
-            "Years": {
-                "CY": rev_cy_year,
-                "PY": rev_py_year,
-            },
+            "Years": years,
 
             "Indtjening": {
-                # Nettoomsætning is often suppressed (§32)
                 "Nettoomsætning": {
                     "CY": rev_cy if rev_cy is not None else "Ukendt",
                     "PY": rev_py if rev_py is not None else "Ukendt",
