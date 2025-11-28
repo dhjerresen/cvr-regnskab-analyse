@@ -1,331 +1,220 @@
-# app.py
 import streamlit as st
 import pandas as pd
+import requests
 import tempfile
 
-# --- Local imports ---
+# ---------------- Local imports ----------------
 from data_fetch.cvr_api import hent_cvr_data
 from data_fetch.regnskab_api import hent_regnskaber
+
 from xbrl_processing.downloader import download_xbrl
 from xbrl_processing.parser import extract_xbrl_data
 from xbrl_processing.financial_parser import extract_financials
-from llm_summary import run_ai_model
-from summary_prompt import build_summary_prompt
 
-# ---------------------------------------------------------------------
-# Streamlit Page Setup
-# ---------------------------------------------------------------------
-st.set_page_config(page_title="CVR & Regnskabsanalyse", page_icon="🏢", layout="centered")
+# ---- new split XHTML LLM modules ----
+from xhtml_processing.xhtml_text import extract_raw_text
+from xhtml_processing.xhtml_llm_extraction import llm_extract_ledelsesberetning
+from xhtml_processing.xhtml_llm_summary import llm_summarize_ledelsesberetning
+from nlp.final_summary_prompt import build_final_summary_prompt
 
-st.markdown("""
-<style>
-.card {
-    padding: 20px;
-    margin-top: 10px;
-    border-radius: 12px;
-    background-color: #f8f9fa;
-    border: 1px solid #e0e0e0;
-}
-.card h3 {
-    margin-top: 0;
-}
-.big-number {
-    font-size: 22px;
-    font-weight: bold;
-    color: #333;
-}
-.label {
-    font-size: 14px;
-    color: #555;
-}
-</style>
-""", unsafe_allow_html=True)
+# NLP
+from nlp.llm_summary import run_ai_model
+from nlp.summary_prompt import build_summary_prompt
 
-# ---------------------------------------------------------------------
-# Title + Input
-# ---------------------------------------------------------------------
+# Utilities
+from utils.formatting import dk_number, dk_percent
+
+
+
+# ---------------- Streamlit Setup ----------------
+st.set_page_config(
+    page_title="CVR & Regnskabsanalyse",
+    page_icon="🏢",
+    layout="centered"
+)
+
 st.title("🏢 CVR & Regnskabsanalyse")
-st.write("Indtast et CVR-nummer for at hente virksomhedsdata og analysere seneste XBRL-rapport.")
-
-cvr_input = st.text_input("CVR-nummer", placeholder="F.eks. 10150817")
-search_btn = st.button("🔍 Søg virksomhed")
+st.write("Indtast CVR og analyser XBRL samt udtræk Ledelsesberetning fra iXBRL.")
 
 
-# ---------------------------------------------------------------------
-# Streamlit Session State
-# ---------------------------------------------------------------------
-if "company_data" not in st.session_state:
-    st.session_state.company_data = None
 
-if "regnskaber" not in st.session_state:
-    st.session_state.regnskaber = None
+# ---------------- Session State ----------------
+STATE_DEFAULTS = {
+    "company": None,
+    "reports": None,
+    "xbrl_general": None,
+    "xbrl_financial": None,
+    "ledelsesberetning": None,
+    "ledelsesberetning_summary": None,
+}
+for k, v in STATE_DEFAULTS.items():
+    if k not in st.session_state:
+        st.session_state[k] = v
 
-if "general_analysis" not in st.session_state:
-    st.session_state.general_analysis = None
-
-if "financial_analysis" not in st.session_state:
-    st.session_state.financial_analysis = None
 
 
 # =====================================================================
 #                           SEARCH FLOW
 # =====================================================================
+cvr_input = st.text_input("CVR-nummer", placeholder="Fx 10150817")
+search_btn = st.button("🔍 Søg virksomhed")
+
 if search_btn:
     if not cvr_input.strip().isdigit():
-        st.error("Ugyldigt CVR-nummer. Indtast kun tal.")
+        st.error("Indtast kun tal.")
         st.stop()
 
     cvr = int(cvr_input)
 
-    # 1. Fetch CVR data
-    with st.spinner("Slår op i CVR-registeret..."):
+    # -------- Fetch CVR Data --------
+    with st.spinner("Henter virksomhedsdata..."):
         company = hent_cvr_data(cvr)
-
     if not company:
-        st.error("Ingen virksomhedsdata fundet.")
+        st.error("Kunne ikke finde virksomheden.")
         st.stop()
 
-    st.session_state.company_data = company
+    st.session_state.company = company
 
-    # 2. Fetch regnskaber
+    # -------- Fetch Regnskaber --------
     with st.spinner("Henter regnskaber..."):
-        regnskaber = hent_regnskaber(cvr)
+        reports = hent_regnskaber(cvr)
 
-    if not regnskaber:
-        st.error("Ingen regnskaber fundet for denne virksomhed.")
+    if not reports:
+        st.error("Ingen årsrapporter fundet.")
         st.stop()
 
-    df = pd.DataFrame(regnskaber)
-    st.session_state.regnskaber = df
+    df = pd.DataFrame(reports)
+    st.session_state.reports = df
 
-    # 3. Pick newest XBRL file and analyze
+    # -------- Analyse newest raw XBRL file --------
     xbrl_rows = df[df["Filtype"] == "XBRL"].sort_values("Slutdato", ascending=False)
 
     if not xbrl_rows.empty:
-        newest_xbrl = xbrl_rows.iloc[0]
-        with st.spinner("Analyserer seneste XBRL-rapport..."):
+        row = xbrl_rows.iloc[0]
+
+        with st.spinner("Analyserer XBRL..."):
             with tempfile.NamedTemporaryFile(suffix=".xml") as tmp:
-                download_xbrl(newest_xbrl["Url"], tmp.name)
+                download_xbrl(row["Url"], tmp.name)
+                st.session_state.xbrl_general = extract_xbrl_data(tmp.name)
+                st.session_state.xbrl_financial = extract_financials(tmp.name)
 
-                # General metadata parser
-                general = extract_xbrl_data(tmp.name)
-
-                # Financial numbers parser
-                financial = extract_financials(tmp.name)
-
-        st.session_state.general_analysis = general
-        st.session_state.financial_analysis = financial
     else:
-        st.warning("Ingen XBRL tilgængelig.")
-        st.session_state.general_analysis = None
-        st.session_state.financial_analysis = None
+        st.warning("Ingen XBRL-rapporter fundet.")
+        st.session_state.xbrl_general = None
+        st.session_state.xbrl_financial = None
+
 
 
 # =====================================================================
-#                     DISPLAY: COMPANY INFO
+#       SHOW EVERYTHING ELSE ONLY IF COMPANY HAS BEEN LOADED
 # =====================================================================
-if st.session_state.company_data:
-    c = st.session_state.company_data
+if st.session_state.company:
 
-    st.markdown("<div class='card'>", unsafe_allow_html=True)
-    st.markdown("### 🧾 Virksomhedsoplysninger")
+    # =================================================================
+    #                     DISPLAY: COMPANY INFO
+    # =================================================================
+    c = st.session_state.company
+
+    st.subheader("🧾 Virksomhedsoplysninger")
 
     col1, col2 = st.columns(2)
     with col1:
-        st.write(f"**🏷 Navn:** {c.get('name', 'Ukendt')}")
-        st.write(f"**📅 Startdato:** {c.get('startdate', 'Ukendt')}")
-        st.write(f"**📊 Branche:** {c.get('industrydesc', 'Ukendt')}")
+        st.write(f"**Navn:** {c.get('name')}")
+        st.write(f"**Startdato:** {c.get('startdate')}")
+        st.write(f"**Branche:** {c.get('industrydesc')}")
     with col2:
-        st.write(f"**📍 Adresse:** {c.get('address', '')}")
-        st.write(f"**🏙 By:** {c.get('zipcode', '')} {c.get('city', '')}")
-        st.write(f"**📌 Status:** {c.get('status', 'Ukendt')}")
-
-    st.markdown("</div>", unsafe_allow_html=True)
+        st.write(f"**Adresse:** {c.get('address')}")
+        st.write(f"**By:** {c.get('zipcode')} {c.get('city')}")
+        st.write(f"**Status:** {c.get('status')}")
 
 
-# =====================================================================
-#                     DISPLAY: XBRL GENERAL ANALYSIS
-# =====================================================================
-if st.session_state.general_analysis:
-    a = st.session_state.general_analysis
-    df = st.session_state.regnskaber
-    newest_xbrl = df[df["Filtype"] == "XBRL"].sort_values("Slutdato", ascending=False).iloc[0]
+    # =================================================================
+    #                     DISPLAY: XBRL GENERAL ANALYSIS
+    # =================================================================
+    if st.session_state.xbrl_general:
+        a = st.session_state.xbrl_general
 
-    periode = f"{newest_xbrl['Startdato']} → {newest_xbrl['Slutdato']}"
+        st.subheader("📘 XBRL — Generel Analyse")
 
-    st.markdown("<div class='card'>", unsafe_allow_html=True)
-    st.markdown("### 📘 Generel analyse af XBRL-rapport")
-
-    st.write(f"**📆 Periode:** {periode}")
-    st.write(f"**📝 Revisionstype:** {a.get('Revisionstype')}")
-    st.write(f"**👤 Revisortype:** {a.get('Revisortype')}")
-    st.write(f"**⚠️ Korrektion af væsentlig fejl:** {a.get('Korrektion af væsentlig fejl')}")
-    st.write(f"**🚨 Going concern:** {a.get('Going concern usikkerhed')}")
-    st.write(f"**🏭 Væsentlig aktivitet:** {a.get('Væsentlig aktivitet')}")
-
-    st.markdown("</div>", unsafe_allow_html=True)
+        st.write(f"**Revisionstype:** {a.get('Revisionstype')}")
+        st.write(f"**Revisortype:** {a.get('Revisortype')}")
+        st.write(f"**Going Concern:** {a.get('Going concern usikkerhed')}")
+        st.write(f"**Væsentlig aktivitet:** {a.get('Væsentlig aktivitet')}")
+        st.write(f"**Korrektion af væsentlig fejl:** {a.get('Korrektion af væsentlig fejl')}")
 
 
-# =====================================================================
-#                DISPLAY: FINANCIAL ANALYSIS (TWO YEARS)
-# =====================================================================
-if st.session_state.financial_analysis:
-    f = st.session_state.financial_analysis
-    years = f.get("Years", {})
-    cy_year = years.get("CY", "CY")
-    py_year = years.get("PY", "PY")
-    currency = f.get("Valuta", "")
+    # =================================================================
+    #                     DISPLAY: FINANCIAL ANALYSIS
+    # =================================================================
+    if st.session_state.xbrl_financial:
+        f = st.session_state.xbrl_financial
 
-    st.markdown("<div class='card'>", unsafe_allow_html=True)
-    st.markdown("### 💰 Finansiel analyse — to år")
+        st.subheader("💰 XBRL — Finansiel Analyse")
+        years = f.get("Years", {})
+        cy = years.get("CY", "")
+        py = years.get("PY", "")
+        currency = f.get("Valuta", "")
 
-    # Danish number formatting
-    def dk_number(x):
-        """Format regular numbers in Danish format with no decimals."""
-        if x is None or x == "Ukendt":
-            return x
-        try:
-            return f"{x:,.0f}".replace(",", "X").replace(".", ",").replace("X", ".")
-        except:
-            return x
+        st.write(f"**Valuta:** {currency}")
+        st.write(f"**År:** {cy} ➝ {py}")
 
-    def dk_percent(x):
-        """Format KPI percentages in Danish format with two decimals."""
-        if x is None:
-            return "-"
-        try:
-            return (f"{x*100:,.2f}%"
-                    .replace(",", "X")
-                    .replace(".", ",")
-                    .replace("X", "."))
-        except:
-            return x
+        # Earnings
+        st.markdown("### 📊 Indtjening")
+        for label, vals in f["Indtjening"].items():
+            st.write(f"- **{label}:** {dk_number(vals.get('CY'))} / {dk_number(vals.get('PY'))}")
+
+        # Balance
+        st.markdown("### 📚 Balance")
+        for label, vals in f["Balance"].items():
+            st.write(f"- **{label}:** {dk_number(vals.get('CY'))} / {dk_number(vals.get('PY'))}")
+
+        # KPIs
+        st.markdown("### 📈 Nøgletal")
+        for label, vals in f["Nøgletal"].items():
+            st.write(f"- **{label}:** {dk_percent(vals.get('CY'))} / {dk_percent(vals.get('PY'))}")
 
 
-    def render_table(title, data):
-        st.subheader(title)
+    # =================================================================
+    #     MANUAL LEDERSESBERETNING INPUT (BYPASS LLM EXTRACTION)
+    # =================================================================
+    st.subheader("📥 Indsæt Ledelsesberetning manuelt")
 
-        col1, col2, col3 = st.columns([3, 1.2, 1.2])
-        col1.write("**Post**")
-        col2.write(f"**{cy_year} ({currency})**")
-        col3.write(f"**{py_year} ({currency})**")
+    manual_text = st.text_area(
+        "Indsæt hele ledelsesberetningen her (copy/paste fra PDF/XHTML/etc.)",
+        height=350,
+        placeholder="Sæt teksten ind her…"
+    )
 
-        for label, values in data.items():
-            cy = values.get("CY")
-            py = values.get("PY")
-            col1.write(label)
-            col2.write(dk_number(cy))
-            col3.write(dk_number(py))
-
-    render_table("📊 Indtjening", f["Indtjening"])
-    render_table("📚 Balance", f["Balance"])
-    
-    # Special table for KPIs (percentages)
-    st.subheader("📈 Nøgletal")
-
-    col1, col2, col3 = st.columns([3, 1.2, 1.2])
-    col1.write("**Post**")
-    col2.write(f"**{cy_year} ({currency})**")
-    col3.write(f"**{py_year} ({currency})**")
-
-    for label, values in f["Nøgletal"].items():
-        cy = values.get("CY")
-        py = values.get("PY")
-        col1.write(label)
-        col2.write(dk_percent(cy))
-        col3.write(dk_percent(py))
-
-        st.markdown("</div>", unsafe_allow_html=True)
-
-# =====================================================================
-#                DISPLAY: AI-summary
-# =====================================================================
-
-if st.session_state.general_analysis and st.session_state.financial_analysis:
-    st.markdown("<div class='card'>", unsafe_allow_html=True)
-    st.markdown("### 🧠 AI-sammenfatning (Llama 3.1 8B)")
-
-    general = st.session_state.general_analysis
-    financial = st.session_state.financial_analysis
-
-    prompt = build_summary_prompt(general, financial)
-
-    if st.button("Generer sammenfatning"):
-        with st.spinner("Genererer analyse via Llama 3.1 8B..."):
-            try:
-                summary = run_ai_model(prompt)
-                st.write(summary)
-            except Exception as e:
-                st.error(f"Fejl ved AI-sammenfatning: {e}")
-
-    st.markdown("</div>", unsafe_allow_html=True)
-
-# =====================================================================
-#             DOWNLOAD: Årsrapport (PDF → iXBRL → XBRL)
-# =====================================================================
-if st.session_state.regnskaber is not None:
-    st.markdown("<div class='card'>", unsafe_allow_html=True)
-    st.markdown("### 📥 Download årsrapport")
-
-    df = st.session_state.regnskaber
-
-    # Accept both PDF and XBRL rows
-    download_rows = df[df["Filtype"].isin(["PDF", "XBRL"])].copy()
-
-    if not download_rows.empty:
-
-        # --- Detect iXBRL based on file extension (.xhtml, .html, .htm) ---
-        def detect_ixbrl(url: str) -> bool:
-            if not isinstance(url, str):
-                return False
-            url_low = url.lower()
-            # Strip query params and fragments
-            base = url_low.split("?", 1)[0].split("#", 1)[0]
-            return base.endswith(".xhtml") or base.endswith(".html") or base.endswith(".htm")
-
-        download_rows["is_ixbrl"] = download_rows["Url"].apply(detect_ixbrl)
-
-        # --- Ranking priority:
-        # 1. PDF
-        # 2. iXBRL (.xhtml/.html/.htm)
-        # 3. XBRL raw (typically .xml)
-        def rank(row):
-            if row["Filtype"] == "PDF":
-                return 0
-            if row["is_ixbrl"]:
-                return 1
-            return 2
-
-        download_rows["priority"] = download_rows.apply(rank, axis=1)
-
-        # Sort newest year first, then PDF → iXBRL → XBRL
-        download_rows = download_rows.sort_values(
-            ["Slutdato", "priority"],
-            ascending=[False, True]
-        )
-
-        # Keep only best file per year
-        best_per_year = download_rows.drop_duplicates(subset=["Slutdato"], keep="first")
-
-        # Dropdown with all years
-        years = sorted(best_per_year["Slutdato"].unique(), reverse=True)
-        selected_year = st.selectbox("Vælg år for årsrapport:", years)
-
-        chosen = best_per_year[best_per_year["Slutdato"] == selected_year].iloc[0]
-
-        # User-friendly label
-        if chosen["Filtype"] == "PDF":
-            label = "PDF"
-        elif chosen["is_ixbrl"]:
-            label = "iXBRL"
+    if st.button("Gem manuelt indsat tekst"):
+        if manual_text.strip():
+            st.session_state.ledelsesberetning = manual_text.strip()
+            st.success("Ledelsesberetningen er gemt.")
         else:
-            label = "XBRL"
+            st.warning("Der blev ikke indsat nogen tekst.")
 
-        st.markdown(
-            f"[📄 Download {label}-rapport]({chosen['Url']})  \n"
-        )
+    # =====================================================================
+    #   FINAL COMBINED SUMMARY
+    # =====================================================================
+    st.markdown("---")
+    st.subheader("🧠 Samlet LLM-sammenfatning (XBRL + Ledelsesberetning)")
 
-    else:
-        st.info("Ingen årsrapporter fundet (PDF, iXBRL eller XBRL).")
+    if (
+        st.session_state.company 
+        and st.session_state.xbrl_general 
+        and st.session_state.xbrl_financial
+        and st.session_state.ledelsesberetning
+    ):
 
-    st.markdown("</div>", unsafe_allow_html=True)
+        if st.button("Generér samlet LLM-sammenfatning"):
+            with st.spinner("Kører LLM..."):
+                prompt = build_final_summary_prompt(
+                    st.session_state.xbrl_general,
+                    st.session_state.xbrl_financial,
+                    st.session_state.ledelsesberetning
+                )
+                summary = run_ai_model(prompt)
+                st.session_state.final_summary = summary
+                st.write(summary)
+
+    elif st.session_state.company:
+        st.info("Tilføj ledelsesberetning for at generere den samlede sammenfatning.")
