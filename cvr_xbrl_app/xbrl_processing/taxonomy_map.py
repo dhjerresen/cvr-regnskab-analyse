@@ -114,13 +114,16 @@ MATERIAL_ERROR_CORRECTION = {
 # -------------------------------------------------------
 
 GOING_CONCERN = {
-    # Danish GAAP
+    # Danish GAAP standard tags
     "UncertaintyRelatedToGoingConcern",
     "DescriptionOfGoingConcern",
 
-    # IFRS/ESEF
+    # IFRS/ESEF equivalents
     "MaterialUncertaintyRelatedToGoingConcern",
     "GoingConcernAssumption",
+
+    # DCCA-specific tag used in your uploaded file
+    "DisclosureOfUncertaintiesRelatingToGoingConcern",
 }
 
 # -------------------------------------------------------
