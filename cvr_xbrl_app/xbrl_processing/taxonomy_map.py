@@ -1,14 +1,9 @@
-# xbrl_processing/taxonomy_map.py
+# taxonomy_map.py
 """
-taxonomy_map.py
----------------
-Central mapping of XBRL taxonomy element names to conceptual categories.
-
-This file allows the financial parser to work across multiple Danish
-taxonomy versions (DK-GAAP, IFRS-DK, micro reports, older filings, etc.)
-
-Whenever you inspect a new company's XBRL report in Arelle Desktop,
-simply add new localNames to the correct sets.
+Minimal taxonomy update:
+- Keeps your existing field structure
+- Adds IFRS/ESEF equivalents for Spar Nord and other listed companies
+- No extra concepts or expanded extraction
 """
 
 # -------------------------
@@ -16,13 +11,15 @@ simply add new localNames to the correct sets.
 # -------------------------
 
 REVENUE = {
+    # Danish GAAP
     "Revenue",
-    "RevenueFromSaleOfGoods",
-    "RevenueFromSaleOfServices",
-    "RevenueFromPrimaryActivities",
-    "Turnover",
     "NetRevenue",
     "NetTurnover",
+
+    # IFRS
+    "RevenueFromContractsWithCustomers",
+    "RevenueFromSaleOfGoods",
+    "RevenueFromSaleOfServices",
 }
 
 GROSS_PROFIT = {
@@ -31,10 +28,12 @@ GROSS_PROFIT = {
 
 OPERATING_RESULT = {
     "ProfitLossFromOrdinaryOperatingActivities",
+    "OperatingProfitLoss",
 }
 
 NET_RESULT = {
     "ProfitLoss",
+    "ProfitOrLoss",
 }
 
 # -------------------------
@@ -43,68 +42,85 @@ NET_RESULT = {
 
 ASSETS = {
     "Assets",
-    "CurrentAssets",
-    "NoncurrentAssets",
+    "TotalAssets",
 }
 
 EQUITY = {
     "Equity",
-    "ContributedCapital",
-    "RetainedEarnings",
+    "TotalEquity",
 }
 
 LIABILITIES = {
     "LiabilitiesOtherThanProvisions",
-    "ShorttermLiabilitiesOtherThanProvisions",
-    "Provisions",
-}
-
-# -------------------------
-# Employees
-# -------------------------
-
-EMPLOYEES = {
-    "AverageNumberOfEmployees",
+    "Liabilities",
+    "TotalLiabilities",
 }
 
 # -------------------------------------------------------
-# Audit / Revision
+# Audit / Revision (Revisionstype)
 # -------------------------------------------------------
 
 REVISION_TYPE = {
+    # Danish GAAP
     "TypeOfAuditorAssistance",
-}
 
-AUDITOR_DESCRIPTION = {
-    "DescriptionOfAuditor",
+    # IFRS/ESEF common tags
+    "AuditorsAssistanceType",
+    "AuditorsConclusion",
+    "AuditorsOpinion",
 }
-
 
 # -------------------------------------------------------
-# Business activities
+# Auditor role / description (Revisortype)
+# -------------------------------------------------------
+
+AUDITOR_DESCRIPTION = {
+    # Danish GAAP
+    "DescriptionOfAuditor",
+
+    # IFRS/ESEF
+    "AuditorName",
+    "NameOfAuditor",
+}
+
+# -------------------------------------------------------
+# Business activities (Væsentlig aktivitet)
 # -------------------------------------------------------
 
 MAIN_ACTIVITY = {
+    # Danish GAAP
     "DescriptionOfPrimaryActivitiesOfEntity",
-}
 
+    # IFRS/ESEF
+    "NatureOfOperations",
+    "PrincipalActivities",
+    "DescriptionOfBusiness",
+}
 
 # -------------------------------------------------------
 # Corrections of material errors
 # -------------------------------------------------------
 
 MATERIAL_ERROR_CORRECTION = {
+    # Danish GAAP
     "CorrectionOfMaterialError",
+
+    # IFRS/ESEF
+    "PriorPeriodErrorRestatement",
 }
 
-
 # -------------------------------------------------------
-# Going concern
+# Going Concern
 # -------------------------------------------------------
 
 GOING_CONCERN = {
+    # Danish GAAP
     "UncertaintyRelatedToGoingConcern",
     "DescriptionOfGoingConcern",
+
+    # IFRS/ESEF
+    "MaterialUncertaintyRelatedToGoingConcern",
+    "GoingConcernAssumption",
 }
 
 # -------------------------------------------------------
@@ -112,7 +128,11 @@ GOING_CONCERN = {
 # -------------------------------------------------------
 
 ACCOUNTING_CLASS = {
+    # Danish-only
     "ClassOfReportingEntity",
+
+    # IFRS/ESEF filers sometimes include:
+    "ReportingFramework",
 }
 
 ACCOUNTING_CLASS_UPGRADE = {

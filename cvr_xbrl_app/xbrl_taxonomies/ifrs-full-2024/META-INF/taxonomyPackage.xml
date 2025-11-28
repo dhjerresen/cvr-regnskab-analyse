@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Taxonomy: 2024-03-27 (Final)**********************         Copyright (c) 2024 IFRS Foundation        All rights reserved. Reproduction and use rights are strictly limited. For more information on the IFRS Foundation's copyright and the terms and conditions of use for these files, please refer to http://go.ifrs.org/IFRSTterms.The IFRS Foundation has trade marks registered around the world (Marks) including 'IAS', 'IASB', the IASB logo, 'IFRIC', 'IFRS', the IFRS logo, 'IFRS for SMEs', the IFRS for SMEs logo, the 'Hexagon Device', 'International Accounting Standards', 'International Financial Reporting Standards', 'NIIF' and 'SIC'. Further details of the IFRS Foundation's Marks are available from the IFRS Foundation on request.        **********************   -->
+<tp:taxonomyPackage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tp="http://xbrl.org/2016/taxonomy-package" xml:lang="en" xsi:schemaLocation="http://xbrl.org/2016/taxonomy-package http://www.xbrl.org/2016/taxonomy-package.xsd">
+    <tp:identifier>https://xbrl.ifrs.org/taxonomy/2024-03-27/ifrs</tp:identifier>
+    <tp:name>The annual IFRS Accounting Taxonomy 2024</tp:name>
+    <tp:description>The IFRS Accounting Taxonomy 2024 reflects the presentation and disclosure requirements of the IFRS Accounting Standards as issued by the International Accounting Standards Board (IASB) at 1 January 2024, the IFRS for SMEs Standard as issued by the IASB in December 2015 and Practice Statement 1 Management Commentary as issued by the IASB in December 2010. The IFRS Accounting Taxonomy also includes elements that reflect common reporting practice by entities that apply IFRS Accounting Standards (common practice). 
+
+The IFRS Accounting Taxonomy 2024 includes amendments made to the IFRS Accounting Taxonomy 2023 resulting from: International Tax Reform—Pillar Two Model Rules (Amendments to IAS 12 Income Taxes) issued by the IASB in May 2023; International Tax Reform—Pillar Two Model Rules, (Amendments to Section 29 of the IFRS for SMEs Standard) issued by the IASB in September 2023; Supplier Finance Arrangements, (Amendments to IAS 7 Statement of Cash Flows and IFRS 7 Financial Instruments: Disclosures) issued by the IASB in May 2023; Lack of Exchangeability, (Amendments to IAS 21 The Effects of Changes in Foreign Exchange Rates) issued by the IASB in August 2023; General Improvements, Common Practice and Technology updates. </tp:description>
+    <tp:version>Final</tp:version>
+    <tp:license href="https://www.ifrs.org/legal/terms-and-conditions/" name="The IFRS Taxonomy - Terms and Conditions"/>
+    <tp:publisher>IFRS Foundation</tp:publisher>
+    <tp:publisherURL>https://www.ifrs.org/</tp:publisherURL>
+    <tp:publisherCountry>GB</tp:publisherCountry>
+    <tp:publicationDate>2024-03-27</tp:publicationDate>
+    <tp:entryPoints>
+		<tp:entryPoint>
+		  <tp:name>Full IFRS Entry Point including documentation labels.</tp:name>
+		  <tp:description>This is the Entry Point for viewing the IFRS Accounting Taxonomy for full IFRS Accounting Standards reporting. Documentation labels are included.</tp:description>
+		  <tp:entryPointDocument href="https://xbrl.ifrs.org/taxonomy/2024-03-27/full_ifrs_entry_point_2024-03-27.xsd"/>
+		</tp:entryPoint>
+		<tp:entryPoint>
+		  <tp:name>Management Commentary Entry Point including documentation labels.</tp:name>
+		  <tp:description>This is the Entry Point for viewing the IFRS Accounting Taxonomy for the IFRS Practice Statement Management Commentary reporting. Documentation labels are included.</tp:description>
+		  <tp:entryPointDocument href="https://xbrl.ifrs.org/taxonomy/2024-03-27/mc_entry_point_2024-03-27.xsd"/>
+		</tp:entryPoint>		
+		<tp:entryPoint>
+			<tp:name>Full IFRS and Management Commentary Entry Point including documentation labels.</tp:name>
+			<tp:description>This is the Entry Point for viewing the IFRS Accounting Taxonomy for full IFRS Accounting Standards reporting with the IFRS Practice Statement Management Commentary reporting. Documentation labels are included.</tp:description>
+			<tp:entryPointDocument href="https://xbrl.ifrs.org/taxonomy/2024-03-27/full_ifrs_mc_entry_point_2024-03-27.xsd"/>
+		</tp:entryPoint>		
+		<tp:entryPoint>
+		  <tp:name>IFRS for SMEs Entry Point including documentation labels.</tp:name>
+		  <tp:description>This is the Entry Point for viewing the IFRS Accounting Taxonomy for IFRS for SMEs Standard reporting. Documentation labels are included.</tp:description>
+		  <tp:entryPointDocument href="https://xbrl.ifrs.org/taxonomy/2024-03-27/ifrs_for_smes_entry_point_2024-03-27.xsd"/>
+		</tp:entryPoint>
+		<tp:entryPoint>
+		  <tp:name>Combined Entry Point including documentation labels.</tp:name>
+		  <tp:description>This is the Entry Point for viewing the IFRS Accounting Taxonomy for full IFRS Accounting Standards, IFRS for SMEs Standard and the IFRS Practice Statement Management Commentary reporting. Documentation labels are included.</tp:description>
+		  <tp:entryPointDocument href="https://xbrl.ifrs.org/taxonomy/2024-03-27/combined_entry_point_2024-03-27.xsd"/>
+		</tp:entryPoint>	
+		<tp:entryPoint>
+		  <tp:name>Basic Entry Point including documentation labels.</tp:name>
+		  <tp:description>This is the Entry Point for viewing the IFRS Accounting Taxonomy for full IFRS Accounting Standards reporting. Documentation labels are included, but generic links are excluded.</tp:description>
+		  <tp:entryPointDocument href="https://xbrl.ifrs.org/taxonomy/2024-03-27/basic_ifrs_entry_point_2024-03-27.xsd"/>
+		</tp:entryPoint>
+		<tp:entryPoint>
+		  <tp:name>Deprecated Entry Point including documentation labels.</tp:name>
+		  <tp:description>This is the Entry Point for viewing the deprecated IFRS Accounting Taxonomy elements for IFRS Accounting Standards reporting. Documentation labels are included.</tp:description>
+		  <tp:entryPointDocument href="https://xbrl.ifrs.org/taxonomy/2024-03-27/depr_entry_point_2024-03-27.xsd"/>
+		</tp:entryPoint>
+		<tp:entryPoint>
+		  <tp:name>Full IFRS Essential Entry Point including documentation labels.</tp:name>
+		  <tp:description>This Entry Point is provided as a base from which regulators or preparers can build extensions to the IFRS Accounting Taxonomy for full IFRS Accounting Standards reporting. Documentation labels are included.</tp:description>
+		  <tp:entryPointDocument href="https://xbrl.ifrs.org/taxonomy/2024-03-27/full_ifrs_entry_point_ext_2024-03-27.xsd"/>
+		</tp:entryPoint>
+		<tp:entryPoint>
+		  <tp:name>Management Commentary Essential Entry Point including documentation labels.</tp:name>
+		  <tp:description>This Entry Point is provided as a base from which regulators or preparers can build extensions to the IFRS Accounting Taxonomy for the IFRS Practice Statement Management Commentary reporting. Documentation labels are included.</tp:description>
+		  <tp:entryPointDocument href="https://xbrl.ifrs.org/taxonomy/2024-03-27/mc_entry_point_ext_2024-03-27.xsd"/>
+		</tp:entryPoint>
+		<tp:entryPoint>
+		  <tp:name>Full IFRS and Management Commentary Essential Entry Point including documentation labels.</tp:name>
+		  <tp:description>This Entry Point is provided as a base from which regulators or preparers can build extensions to the IFRS Accounting Taxonomy for full IFRS Accounting Standards reporting with the IFRS Practice Statement Management Commentary reporting. Documentation labels are included.</tp:description>
+		  <tp:entryPointDocument href="https://xbrl.ifrs.org/taxonomy/2024-03-27/full_ifrs_mc_entry_point_ext_2024-03-27.xsd"/>
+		</tp:entryPoint>
+		<tp:entryPoint>
+		  <tp:name>IFRS for SMEs Essential Entry Point including documentation labels.</tp:name>
+		  <tp:description>This Entry Point is provided as a base from which regulators or preparers can build extensions to the IFRS Accounting Taxonomy for IFRS for SMEs Standard reporting. Documentation labels are included.</tp:description>
+		  <tp:entryPointDocument href="https://xbrl.ifrs.org/taxonomy/2024-03-27/ifrs_for_smes_entry_point_ext_2024-03-27.xsd"/>
+		</tp:entryPoint>	
+		<tp:entryPoint>
+		  <tp:name>Combined Essential Entry Point including documentation labels.</tp:name>
+		  <tp:description>This Entry Point is provided as a base from which regulators or preparers can build extensions to the IFRS Accounting Taxonomy for full IFRS Accounting Standards, IFRS for SMEs Standard and the IFRS Practice Statement Management Commentary reporting. Documentation labels are included.</tp:description>
+		  <tp:entryPointDocument href="https://xbrl.ifrs.org/taxonomy/2024-03-27/combined_entry_point_ext_2024-03-27.xsd"/>
+		</tp:entryPoint>
+		<tp:entryPoint>
+		  <tp:name>Basic Essential Entry Point including documentation labels.</tp:name>
+		  <tp:description>This Entry Point is provided as a base from which regulators or preparers can build extensions to the IFRS Accounting Taxonomy for full IFRS Accounting Standards reporting. Documentation labels are included, but generic links are excluded.</tp:description>
+		  <tp:entryPointDocument href="https://xbrl.ifrs.org/taxonomy/2024-03-27/basic_ifrs_entry_point_ext_2024-03-27.xsd"/>
+		</tp:entryPoint>
+  </tp:entryPoints>
+</tp:taxonomyPackage>
