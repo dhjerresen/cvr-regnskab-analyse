@@ -4,4 +4,4 @@ __pycache__/
 .env
 .DS_Store
 .streamlit/
-cvr_xbrl_app/arelle-log.txt
+arelle-log.txt
