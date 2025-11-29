@@ -120,6 +120,70 @@ def _normalize_revisionstype(value: str) -> str:
     # -------------------------
     return value
 
+def _normalize_revisortype(value: str) -> str:
+    """
+    Normalize wording of 'Revisortype' into:
+    - 'Statsautoriseret revisor'
+    - 'Registreret revisor'
+    - 'Ingen revisor'
+    - 'Andet'
+    """
+    if not value:
+        return None
+
+    v = value.lower().strip()
+
+    # -------------------------
+    # 1) INGEN REVISOR
+    # -------------------------
+    if any(x in v for x in [
+        "ingen", 
+        "uden revisor",
+        "ikke revideret",
+        "ikke valgt revisor",
+        "fravalgt revision",
+        "fravalg af revisor",
+        "uden revision"
+    ]):
+        return "Ingen revisor"
+
+    # -------------------------
+    # 2) STATSautorisERet REVIsor
+    # -------------------------
+    if any(x in v for x in [
+        "statsautoriseret",
+        "state-authorised",
+        "statsaut."
+    ]):
+        return "Statsautoriseret revisor"
+
+    # -------------------------
+    # 3) REGISTRERET REVISOR
+    # -------------------------
+    if any(x in v for x in [
+        "registreret revisor",
+        "reg. revisor",
+        "registreret"
+    ]):
+        return "Registreret revisor"
+
+    # -------------------------
+    # 4) ANDRE – side cases
+    # -------------------------
+    # Some reports include the firm name but no type:
+    # e.g. "Deloitte", "PwC", "BDO"
+    if any(x in v for x in [
+        "deloitte", "pwc", "bdo", "ey", "grant thornton", 
+        "martinsen", "kpmg"
+    ]):
+        # Usually a statsaut. firm but we cannot assume.
+        return "Andet"
+
+    # -------------------------
+    # Fallback
+    # -------------------------
+    return "Andet"
+
 def extract_xbrl_data(filepath: str) -> dict:
     """
     Parse XBRL/iXBRL file with Arelle and extract general qualitative facts.
@@ -131,7 +195,7 @@ def extract_xbrl_data(filepath: str) -> dict:
         data = {
             # Revision info
             "Revisionstype": _normalize_revisionstype(_find_first(model, REVISION_TYPE)),
-            "Revisortype": _find_first(model, AUDITOR_DESCRIPTION),
+            "Revisortype": _normalize_revisortype(_find_first(model, AUDITOR_DESCRIPTION)),
 
             # Company activity description
             "Væsentlig aktivitet": _clean_activity(_find_first(model, MAIN_ACTIVITY)),
