@@ -43,6 +43,82 @@ def _clean_activity(text: str) -> str:
     # Final trim
     return t.strip()
 
+def _normalize_revisionstype(value: str) -> str:
+    """
+    Normalize various wording forms of revision types into:
+    - 'Revision'
+    - 'Udvidet Gennemgang'
+    - 'Assistance'
+    - 'Ingen bistand'
+    - 'Review'  (rare but supported)
+    """
+    if not value:
+        return None
+
+    v = value.lower().strip()
+
+    # -------------------------
+    # 1) INGEN BISTAND
+    # -------------------------
+    if any(x in v for x in [
+        "ingen bistand",
+        "ingen",                       # generic
+        "uden revisor",
+        "ikke revideret",
+        "uden revision",
+        "uden gennemgang",
+        "uden erklæring"
+    ]):
+        return "Ingen bistand"
+
+    # -------------------------
+    # 2) ASSISTANCE (uden sikkerhed)
+    # -------------------------
+    if any(x in v for x in [
+        "andre erklæringer uden sikkerhed",
+        "uden sikkerhed",
+        "assistance",
+        "revisorassistance",
+        "udarbejdet med bistand",
+        "udarbejdet uden",  # e.g. "udarbejdet uden revisor"
+        "kompilering"
+    ]):
+        return "Assistance"
+
+    # -------------------------
+    # 3) UDV. GENNEMGANG
+    # -------------------------
+    if any(x in v for x in [
+        "erklæring om udvidet gennemgang",
+        "udvidet gennemgang",
+        "udv. gennemgang",
+        "gennemgangserklæring",
+        "gennemgang"  # careful but safe: most Danish uses are "udvidet gennemgang"
+    ]):
+        return "Udvidet Gennemgang"
+
+    # -------------------------
+    # 4) REVISION
+    # -------------------------
+    if any(x in v for x in [
+        "revisionspåtegning",
+        "revision",
+        "revideret regnskab",
+        "aflagt med revision",
+        "revisionsfirma"
+    ]):
+        return "Revision"
+
+    # -------------------------
+    # 5) REVIEW (rare, English)
+    # -------------------------
+    if "review" in v:
+        return "Review"
+
+    # -------------------------
+    # Fallback — unknown label
+    # -------------------------
+    return value
 
 def extract_xbrl_data(filepath: str) -> dict:
     """
@@ -54,7 +130,7 @@ def extract_xbrl_data(filepath: str) -> dict:
 
         data = {
             # Revision info
-            "Revisionstype": _find_first(model, REVISION_TYPE),
+            "Revisionstype": _normalize_revisionstype(_find_first(model, REVISION_TYPE)),
             "Revisortype": _find_first(model, AUDITOR_DESCRIPTION),
 
             # Company activity description
