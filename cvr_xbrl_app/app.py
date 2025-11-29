@@ -3,6 +3,7 @@ import pandas as pd
 import tempfile
 import requests
 from lxml import etree
+import json
 
 # ---------------- Local imports ----------------
 from data_fetch.cvr_api import hent_cvr_data
@@ -11,6 +12,7 @@ from data_fetch.regnskab_api import hent_regnskaber
 from xbrl_processing.downloader import download_xbrl
 from xbrl_processing.parser import extract_xbrl_data
 from xbrl_processing.financial_parser import extract_financials
+from xbrl_processing.json_transformer import transform_xbrl_to_json
 
 from xhtml_processing.xhtml_text import extract_raw_text
 from xhtml_processing.xhtml_llm_extraction import llm_extract_ledelsesberetning
@@ -200,10 +202,12 @@ if st.session_state.xbrl_general and st.session_state.xbrl_financial:
 
     if st.button("Generer XBRL-sammenfatning"):
         with st.spinner("Kører LLM..."):
-            prompt = build_summary_prompt(
+            json_payload = transform_xbrl_to_json(
                 st.session_state.xbrl_general,
                 st.session_state.xbrl_financial
             )
+
+            prompt = build_summary_prompt(json_payload)
             summary = run_ai_model(prompt)
             st.write(summary)
 
