@@ -54,6 +54,7 @@ LIABILITIES = {
     "LiabilitiesOtherThanProvisions",
     "Liabilities",
     "TotalLiabilities",
+    "LiabilitiesAndEquity",
 }
 
 # -------------------------------------------------------
