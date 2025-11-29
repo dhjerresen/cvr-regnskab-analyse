@@ -102,12 +102,20 @@ def _get_currency_from_units(model_xbrl) -> Optional[str]:
     for unit in model_xbrl.units.values():
         if not unit.measures:
             continue
+
         numerators = unit.measures[0]
         for qn in numerators:
-            if qn.localName and len(qn.localName) in (3, 4):
-                return qn.localName
-    return None
+            name = qn.localName.upper()
 
+            # Skip non-currency units
+            if name in ("PURE", "SHARES", "UNITS"):
+                continue
+
+            # Accept only ISO-4217 style currencies
+            if len(name) == 3:
+                return name
+
+    return None
 
 # ---------------------------------------------------------
 # FACT COLLECTION
