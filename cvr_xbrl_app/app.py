@@ -16,9 +16,9 @@ from xbrl_processing.json_transformer import transform_xbrl_to_json
 
 from xhtml_processing.xhtml_text import extract_raw_text
 from xhtml_processing.xhtml_llm_extraction import llm_extract_ledelsesberetning
-from xhtml_processing.xhtml_llm_summary import llm_summarize_ledelsesberetning
+from nlp.ledelsesberetning_summary import llm_summarize_ledelsesberetning
 
-from nlp.llm_summary import run_ai_model
+from nlp.llm_model import run_ai_model
 from nlp.summary_prompt import build_summary_prompt
 
 from utils.formatting import dk_number, dk_percent
