@@ -23,10 +23,8 @@ from nlp.summary_prompt import build_summary_prompt
 
 from utils.formatting import dk_number, dk_percent
 
-# NEW: universal ÅRL + IFRS/ESEF instance finder
 from xbrl_processing.instance_finder import find_valid_instance
 
-# NEW: Arelle loader with local taxonomy
 from xbrl_processing.arelle_loader import load_model
 
 
