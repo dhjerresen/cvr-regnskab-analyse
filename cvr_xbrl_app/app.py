@@ -9,22 +9,17 @@ import os
 from data_fetch.cvr_api import hent_cvr_data
 from data_fetch.regnskab_api import hent_regnskaber
 
-from xbrl_processing.downloader import download_xbrl
 from xbrl_processing.parser import extract_xbrl_data
 from xbrl_processing.financial_parser import extract_financials
 from xbrl_processing.json_transformer import transform_xbrl_to_json
+from xbrl_processing.instance_finder import find_valid_instance
+from xbrl_processing.arelle_loader import load_model
 
-from xhtml_processing.xhtml_text import extract_raw_text
-from xhtml_processing.xhtml_llm_extraction import llm_extract_ledelsesberetning
 from nlp.ledelsesberetning_summary import llm_summarize_ledelsesberetning
-
 from nlp.llm_model import run_ai_model
 from nlp.summary_prompt import build_summary_prompt
 
 from utils.formatting import dk_number, dk_percent
-
-from xbrl_processing.instance_finder import find_valid_instance
-from xbrl_processing.arelle_loader import load_model
 
 
 # =====================================================================
