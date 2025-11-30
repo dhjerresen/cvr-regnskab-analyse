@@ -2,7 +2,6 @@ import streamlit as st
 import pandas as pd
 import tempfile
 import requests
-from lxml import etree
 import json
 import os
 
@@ -29,23 +28,16 @@ from xbrl_processing.arelle_loader import load_model
 
 
 # =====================================================================
-#                  NEW HELPER FUNCTION
+#                  HELPER: FIND SUPPLEMENTAL XBRL
 # =====================================================================
 def find_additional_xbrl(df):
-    """
-    When the main instance is XHTML (large company),
-    locate an XBRL/XML file containing 'årsrapport'.
-    """
-    # First priority: Årsrapport XBRL
     xbrl = df[
         df["Filtype"].str.contains("XBRL", case=False, na=False) &
         df["Beskrivelse"].str.contains("årsrapport", case=False, na=False)
     ]
-
     if not xbrl.empty:
         return xbrl.iloc[0]["Url"]
 
-    # Fallback: any XML/XBRL file
     fallback = df[df["Filtype"].str.contains("XBRL", case=False, na=False)]
     if not fallback.empty:
         return fallback.iloc[0]["Url"]
@@ -78,8 +70,6 @@ STATE_DEFAULTS = {
     "ledelsesberetning_summary": None,
     "instance_path": None,
     "instance_source_url": None,
-
-    # NEW:
     "extra_xbrl_path": None,
     "extra_xbrl_url": None,
 }
@@ -102,7 +92,7 @@ if search_btn:
 
     cvr = int(cvr_input)
 
-    # ---------------- Get company ----------------
+    # --- Fetch company ---
     with st.spinner("Henter virksomhedsdata..."):
         company = hent_cvr_data(cvr)
 
@@ -112,7 +102,7 @@ if search_btn:
 
     st.session_state.company = company
 
-    # ---------------- Get reports ----------------
+    # --- Fetch reports ---
     with st.spinner("Henter regnskaber..."):
         reports = hent_regnskaber(cvr)
 
@@ -123,9 +113,7 @@ if search_btn:
     df = pd.DataFrame(reports)
     st.session_state.reports = df
 
-    # =====================================================================
-    #                   FIND MAIN INSTANCE FILE
-    # =====================================================================
+    # --- Find main instance ---
     with st.spinner("Finder XBRL / iXBRL instansfil..."):
         instance_path, instance_source_url = find_valid_instance(df)
 
@@ -136,9 +124,7 @@ if search_btn:
     st.session_state.instance_path = instance_path
     st.session_state.instance_source_url = instance_source_url
 
-    # =====================================================================
-    #           NEW: FETCH EXTRA XBRL FILE IF INSTANCE IS XHTML
-    # =====================================================================
+    # --- Supplemental XBRL for XHTML files ---
     extra_xbrl_path = None
     extra_xbrl_url = None
 
@@ -161,6 +147,7 @@ if search_btn:
     st.session_state.extra_xbrl_url = extra_xbrl_url
     st.session_state.extra_xbrl_path = extra_xbrl_path
 
+    # --- Load XBRL/XHTML model ---
     with st.spinner("Indlæser og analyserer XBRL/iXBRL..."):
         try:
             model = load_model(instance_path)
@@ -168,23 +155,18 @@ if search_btn:
             st.error("Arelle kunne ikke indlæse filen:\n" + str(e))
             st.stop()
 
-        # ---------------------------------------------------------
-        # Choose source files for parsing
-        # ---------------------------------------------------------
-        main_file = instance_path
-        general_file = instance_path       # default
-        financial_file = instance_path     # default
+        # Select source files
+        general_file = instance_path
+        financial_file = instance_path
 
-        # Large company: XHTML + supplemental XML = use supplemental for qualitative tags
         if instance_path.endswith(".xhtml") and st.session_state.extra_xbrl_path:
             general_file = st.session_state.extra_xbrl_path
-            financial_file = instance_path  # financials always from XHTML instance
+            financial_file = instance_path
 
-        # ---------------------------------------------------------
-        # Parse using correct sources
-        # ---------------------------------------------------------
+        # Parse
         st.session_state.xbrl_general = extract_xbrl_data(general_file)
         st.session_state.xbrl_financial = extract_financials(financial_file)
+
 
 # =====================================================================
 #                    DOWNLOAD MAIN INSTANCE FILE
@@ -195,16 +177,13 @@ if st.session_state.instance_path:
     with open(st.session_state.instance_path, "rb") as f:
         data = f.read()
 
-    # Filename detection
     p = st.session_state.instance_path
-    if p.endswith(".xhtml"):
-        fname = "instance_file.xhtml"
-    elif p.endswith(".html"):
-        fname = "instance_file.html"
-    elif p.endswith(".xml"):
-        fname = "instance_file.xml"
-    else:
-        fname = "instance_file.xbrl"
+    fname = (
+        "instance_file.xhtml" if p.endswith(".xhtml") else
+        "instance_file.html"  if p.endswith(".html") else
+        "instance_file.xml"   if p.endswith(".xml") else
+        "instance_file.xbrl"
+    )
 
     st.download_button(
         label="⬇️ Download instansfil",
@@ -215,7 +194,7 @@ if st.session_state.instance_path:
 
 
 # =====================================================================
-#          NEW — EXTRA DOWNLOAD: Årsrapport XBRL (for XHTML cases)
+# EXTRA DOWNLOAD: Supplemental XBRL
 # =====================================================================
 if st.session_state.extra_xbrl_path:
     st.subheader("📦 Ekstra: Årsrapport XBRL (supplerende fil)")
@@ -232,7 +211,7 @@ if st.session_state.extra_xbrl_path:
 
 
 # =====================================================================
-#                   DISPLAY COMPANY INFORMATION
+#                DISPLAY COMPANY INFORMATION
 # =====================================================================
 if st.session_state.company:
     c = st.session_state.company
@@ -256,7 +235,6 @@ if st.session_state.company:
 if st.session_state.xbrl_general:
     a = st.session_state.xbrl_general
 
-    # 🔥 Periods now come from GENERAL, not FINANCIAL
     years = a.get("Years", {})
     cy = years.get("CY", {})
     py = years.get("PY", {})
@@ -282,6 +260,7 @@ if st.session_state.xbrl_financial:
     st.subheader("💰 XBRL — Finansiel Analyse")
 
     st.write(f"**Valuta:** {f.get('Valuta', '')}")
+
     st.markdown("### 📊 Indtjening")
     for label, vals in f["Indtjening"].items():
         st.write(f"- **{label}:** {dk_number(vals.get('CY'))} / {dk_number(vals.get('PY'))}")
@@ -296,54 +275,69 @@ if st.session_state.xbrl_financial:
 
 
 # =====================================================================
-#                AI SUMMARY OF XBRL DATA
-# =====================================================================
-if st.session_state.xbrl_general and st.session_state.xbrl_financial:
-    st.subheader("🧠 LLM-sammenfatning af regnskabsdata")
-
-    if st.button("Generer XBRL-sammenfatning"):
-        with st.spinner("Kører LLM..."):
-            json_payload = transform_xbrl_to_json(
-                st.session_state.xbrl_general,
-                st.session_state.xbrl_financial
-            )
-
-            prompt = build_summary_prompt(json_payload)
-            summary = run_ai_model(prompt)
-            st.write(summary)
-
-
-# =====================================================================
-#          MANUAL LEDERSESBERETNING INPUT
+#          MANUAL LEDERSESBERETNING INPUT (MOVED BEFORE SUMMARY)
 # =====================================================================
 if st.session_state.company:
-    st.subheader("📥 Indsæt Ledelsesberetning manuelt")
+    st.subheader("📥 Indsæt Ledelsesberetning (valgfrit)")
 
     manual_text = st.text_area(
         "Indsæt hele ledelsesberetningen her (copy/paste fra PDF/XHTML/etc.)",
-        height=350,
-        placeholder="Sæt teksten ind her…"
+        height=300,
+        placeholder="Indsæt ledelsesberetningen her…"
     )
 
-    if st.button("Gem manuelt indsat tekst"):
+    if st.button("Gem tekst"):
         if manual_text.strip():
             st.session_state.ledelsesberetning = manual_text.strip()
             st.success("Ledelsesberetningen er gemt.")
         else:
-            st.warning("Der blev ikke indsat nogen tekst.")
+            st.session_state.ledelsesberetning = None
+            st.info("Ingen tekst gemt.")
 
 
 # =====================================================================
-#       LLM SUMMARY OF LEDERSESBERETNING
+#                     UNIFIED SUMMARY SECTION
 # =====================================================================
-if st.session_state.ledelsesberetning:
-    st.subheader("✍️ LLM-Sammenfatning af Ledelsesberetning")
+if st.session_state.xbrl_general and st.session_state.xbrl_financial:
+    st.subheader("🧠 Samlet LLM-sammenfatning")
 
-    if st.button("Generer sammenfatning"):
+    st.write("""
+Denne sammenfatning inkluderer:
+- XBRL-data (obligatorisk)
+- Ledelsesberetning (hvis indsat ovenfor)
+""")
+
+    if st.button("Generer samlet sammenfatning"):
         with st.spinner("Kører LLM..."):
-            summary = llm_summarize_ledelsesberetning(
-                st.session_state.ledelsesberetning,
-                run_llm_fn=run_ai_model
+
+            # 1️⃣ Generate XBRL summary (STRICT format)
+            json_payload = transform_xbrl_to_json(
+                st.session_state.xbrl_general,
+                st.session_state.xbrl_financial
             )
-            st.session_state.ledelsesberetning_summary = summary
-            st.write(summary)
+            prompt_xbrl = build_summary_prompt(json_payload)
+            xbrl_summary = run_ai_model(prompt_xbrl).strip()
+
+            # 2️⃣ Ledelsesberetning summary (if exists)
+            led_text = st.session_state.ledelsesberetning
+            led_summary = ""
+
+            if led_text:
+                led_summary = llm_summarize_ledelsesberetning(
+                    led_text,
+                    run_llm_fn=run_ai_model
+                ).strip()
+
+            # 3️⃣ Combine
+            if led_summary:
+                final_output = (
+                    xbrl_summary
+                    + "\n\n────────────────────────────────────────\n"
+                    + "SUPPLERENDE NØGLEPUNKTER FRA LEDELSESBERETNINGEN:\n"
+                    + led_summary
+                )
+            else:
+                final_output = xbrl_summary
+
+            st.session_state.ledelsesberetning_summary = final_output
+            st.write(final_output)

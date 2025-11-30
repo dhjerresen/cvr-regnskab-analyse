@@ -1,4 +1,4 @@
-# llm_summary.py
+# nlp/llm_summary.py
 import os
 from dotenv import load_dotenv
 import google.generativeai as genai

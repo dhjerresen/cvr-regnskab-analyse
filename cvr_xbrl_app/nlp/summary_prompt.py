@@ -1,4 +1,4 @@
-# summary_prompt.py
+# nlp/ummary_prompt.py
 import json
 
 def build_summary_prompt(xbrl_json: dict):
