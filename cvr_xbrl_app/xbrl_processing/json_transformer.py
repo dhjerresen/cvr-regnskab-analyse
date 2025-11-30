@@ -52,7 +52,7 @@ def transform_xbrl_to_json(general: dict, financial: dict) -> dict:
         "audit_type": general.get("Revisionstype"),
         "auditor_type": general.get("Revisortype"),
         "going_concern": general.get("Going concern usikkerhed"),
-        "main_activity": general.get("Væsentlig aktivitet"),
+        "main_activity": financial.get("Væsentlig aktivitet"),
         "material_error_correction": general.get("Korrektion af væsentlig fejl"),
         "accounting_class": general.get("Anvendt regnskabsklasse"),
         "accounting_class_upgrade": general.get("Tilvalg af højere regnskabsklasse")
