@@ -4,14 +4,10 @@ import tempfile
 import zipfile
 import requests
 import io
-import os
 
 from xbrl_processing.downloader import download_xbrl
 
 
-# ------------------------------------------
-# Helper: detect inline XBRL
-# ------------------------------------------
 def file_contains_ixbrl(text: str) -> bool:
     if not text:
         return False
@@ -24,9 +20,6 @@ def file_contains_ixbrl(text: str) -> bool:
     )
 
 
-# ------------------------------------------
-# Helper: detect normal XBRL XML
-# ------------------------------------------
 def file_contains_xbrl_xml(text: str) -> bool:
     if not text:
         return False
@@ -38,15 +31,11 @@ def file_contains_xbrl_xml(text: str) -> bool:
     )
 
 
-# ------------------------------------------
-# Detect correct ESEF XHTML inside ZIP
-# ------------------------------------------
 def find_esef_xhtml_in_zip(url: str):
     try:
         resp = requests.get(url, timeout=15)
         z = zipfile.ZipFile(io.BytesIO(resp.content))
 
-        # List XHTML/HTML files only
         candidates = [
             name for name in z.namelist()
             if name.lower().endswith((".xhtml", ".html"))
@@ -54,7 +43,6 @@ def find_esef_xhtml_in_zip(url: str):
         if not candidates:
             return None, None
 
-        # Priority 1: look for inline XBRL markup in file content
         for name in candidates:
             try:
                 content = z.read(name).decode("utf-8", errors="ignore")
@@ -63,14 +51,12 @@ def find_esef_xhtml_in_zip(url: str):
             except:
                 pass
 
-        # Priority 2: common ESEF names
         for name in candidates:
             if "report" in name.lower():
                 return z, name
             if "xbrl" in name.lower():
                 return z, name
 
-        # Priority 3: fallback to largest XHTML file
         largest = max(candidates, key=lambda n: len(z.read(n)))
         return z, largest
 
@@ -78,20 +64,11 @@ def find_esef_xhtml_in_zip(url: str):
         return None, None
 
 
-# ------------------------------------------
-# MAIN ENTRY POINT DETECTOR
-# ------------------------------------------
 def find_valid_instance(df):
     """
-    Returns a local filepath to a valid XBRL/iXBRL instance file.
-    Handles:
-      - IFRS/ESEF XHTML (inside ZIP)
-      - ÅRL XML
+    Returns: (instance_local_path, instance_source_url)
     """
-
-    # ===============================
-    # 1) Try ZIP → XHTML (ESEF)
-    # ===============================
+    # ZIP → XHTML
     zip_rows = df[df["Url"].str.contains(".zip", case=False, na=False)]
 
     if not zip_rows.empty:
@@ -101,12 +78,9 @@ def find_valid_instance(df):
                 with tempfile.NamedTemporaryFile(suffix=".xhtml", delete=False) as tmp:
                     tmp.write(zfile.read(entry))
                     tmp.flush()
-                    return tmp.name  # FOUND XHTML instance
+                    return tmp.name, row["Url"]
 
-
-    # ===============================
-    # 2) Try XML (ÅRL)
-    # ===============================
+    # XML → XBRL
     xml_rows = df[
         df["Url"].str.contains(".xml", case=False, na=False) |
         df["Filtype"].str.contains("XBRL", case=False, na=False) |
@@ -122,12 +96,10 @@ def find_valid_instance(df):
                 if file_contains_xbrl_xml(chunk):
                     with tempfile.NamedTemporaryFile(suffix=".xml", delete=False) as tmp:
                         download_xbrl(row["Url"], tmp.name)
-                        return tmp.name  # FOUND XML instance
+                        return tmp.name, row["Url"]
 
             except Exception:
                 pass
 
-    # ===============================
-    # NOTHING FOUND
-    # ===============================
-    return None
+    # Nothing found
+    return None, None
