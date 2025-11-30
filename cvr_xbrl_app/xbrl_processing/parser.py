@@ -12,13 +12,39 @@ from .taxonomy_map import (
     ACCOUNTING_CLASS_UPGRADE,
 )
 
+def _get_ixbrl_non_numeric(model, names):
+    """
+    Extract text from ix:nonNumeric facts in XHTML/iXBRL.
+    """
+    if not hasattr(model, "ixFacts"):
+        return None
+
+    for ix in model.ixFacts:
+        local = getattr(ix.qname, "localName", None)
+        if not local:
+            continue
+
+        if local in names:
+            text = ix.value
+            if text:
+                return text.strip()
+
+    return None
+
 def _find_first(model, names):
-    """Helper: return first matching fact from a set of localNames."""
+    # Try normal XBRL facts first
     for name in names:
         val = get_fact(model, name)
         if val:
             return val
+
+    # Fallback: look in iXBRL nonNumeric tags
+    ix_val = _get_ixbrl_non_numeric(model, names)
+    if ix_val:
+        return ix_val
+
     return None
+
 
 def _clean_activity(text: str) -> str:
     if not text:
@@ -242,7 +268,7 @@ def extract_xbrl_data(filepath: str) -> dict:
             "Tilvalg af højere regnskabsklasse": _find_first(model, ACCOUNTING_CLASS_UPGRADE),
         }
         data["Years"] = _extract_periods_from_dcca_tags(model)
-        
+
         return data
 
     except Exception as e:

@@ -94,6 +94,7 @@ MAIN_ACTIVITY = {
 
     # DCCA-specific (used by this company)
     "DisclosureOfMainActivitiesAndAccountingAndFinancialMatters"
+    "DescriptionOfNatureOfEntitysOperationsAndPrincipalActivities"
 
     # IFRS/ESEF
     "NatureOfOperations",

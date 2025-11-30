@@ -6,11 +6,8 @@ financial_parser.py — TWO-YEAR VERSION WITH 'UKENDT' REVENUE
 Extracts current year (CY) and previous year (PY) financials from
 Danish XBRL/iXBRL files using Arelle.
 
-RELIES ONLY ON EXPLICIT DANISH GAAP PERIOD TAGS:
-- ReportingPeriodStartDate
-- ReportingPeriodEndDate
-- PrecedingReportingPeriodStartDate
-- PredingReportingPeriodEndDate
+Extended to also extract qualitative text such as
+'Væsentlig aktivitet' directly from XBRL/iXBRL.
 """
 
 from __future__ import annotations
@@ -27,6 +24,7 @@ from .taxonomy_map import (
     ASSETS,
     EQUITY,
     LIABILITIES,
+    MAIN_ACTIVITY,  # din eksisterende liste med aktivitets-koncepter
 )
 
 # ---------------------------------------------------------
@@ -85,8 +83,75 @@ def _get_currency_from_units(model_xbrl) -> Optional[str]:
 
     return None
 
+
 # ---------------------------------------------------------
-# FACT COLLECTION
+# TEXT / ACTIVITY EXTRACTION
+# ---------------------------------------------------------
+
+# Ekstra IFRS-navne vi ved bliver brugt til aktivitetsbeskrivelse
+IFRS_ACTIVITY_NAMES = {
+    "DescriptionOfNatureOfEntitysOperationsAndPrincipalActivities",
+    "NatureOfOperations",
+    "NatureOfEntitysOperations",
+    "PrincipalActivities",
+    "NatureOfOperationsAndPrincipalActivities",
+}
+
+# Samlet sæt af alle aktivitetskoncepter vi leder efter
+ALL_ACTIVITY_NAMES = set(MAIN_ACTIVITY) | IFRS_ACTIVITY_NAMES
+
+
+def _clean_activity_text(text: Optional[str]) -> Optional[str]:
+    """Rens 'væsentlig aktivitet'-tekst (samme ide som i parseren)."""
+    if not text:
+        return text
+
+    # fjern bløde bindestreger og lign.
+    t = text.replace("\u00AD", "").replace("\u2011", "-")
+    t = " ".join(t.split())
+
+    prefix = "Selskabets væsentligste aktiviteter"
+    if t.startswith(prefix):
+        t = t[len(prefix):].lstrip(" .")
+
+    t = t.replace(prefix + " ", "").replace(prefix, "")
+
+    return t.strip() or None
+
+
+def _extract_activity(model_xbrl) -> Optional[str]:
+    """
+    Find 'væsentlig aktivitet' i både klassisk XBRL og iXBRL (ixFacts).
+    """
+    # 1) Prøv først almindelige facts (non-numeric text)
+    try:
+        for fact in getattr(model_xbrl, "facts", []):
+            local = getattr(fact.qname, "localName", None)
+            if local in ALL_ACTIVITY_NAMES:
+                val = str(getattr(fact, "value", "")).strip()
+                if val:
+                    return _clean_activity_text(val)
+    except Exception:
+        pass
+
+    # 2) Fallback: iXBRL / XHTML: ixFacts
+    try:
+        ix_facts = getattr(model_xbrl, "ixFacts", None)
+        if ix_facts:
+            for ix in ix_facts:
+                local = getattr(ix.qname, "localName", None)
+                if local in ALL_ACTIVITY_NAMES:
+                    val = str(getattr(ix, "value", "")).strip()
+                    if val:
+                        return _clean_activity_text(val)
+    except Exception:
+        pass
+
+    return None
+
+
+# ---------------------------------------------------------
+# FACT COLLECTION (NUMERIC)
 # ---------------------------------------------------------
 
 def _get_all_numeric_facts(model_xbrl, names: Iterable[str]) -> Dict[datetime.date, float]:
@@ -154,18 +219,15 @@ def _select_two_years(period_dict: dict) -> Tuple[
 
 def extract_financials(filepath: str) -> dict:
     """
-    Extract two-year financial statements + KPIs.
+    Extract two-year financial statements + KPIs + 'Væsentlig aktivitet'.
     Handles missing revenue (ÅRL §32) by returning 'Ukendt'.
-
-    RELIES EXCLUSIVELY ON DCCA PERIOD TAGS FOR FULL DATES.
     """
     try:
         model = load_model(filepath)
 
-        # Detect currency
+        # ---------------- INCOME STATEMENT ----------------
         currency = _get_currency_from_units(model)
 
-        # ---------------- INCOME STATEMENT ----------------
         rev_cy, rev_py, _, _ = _select_two_years(
             _get_all_numeric_facts(model, REVENUE)
         )
@@ -230,10 +292,18 @@ def extract_financials(filepath: str) -> dict:
             "PY": {"start": py_start, "end": py_end},
         }
 
+        # -------------------------------------------------
+        # NEW: Extract 'Væsentlig aktivitet'
+        # -------------------------------------------------
+        activity = _extract_activity(model)
+
         # ---------------- FINAL OUTPUT ----------------
         return {
             "Valuta": currency,
             "Years": years,
+
+            # Nyt felt – det du viser i Streamlit
+            "Væsentlig aktivitet": activity,
 
             "Indtjening": {
                 "Nettoomsætning": {

@@ -264,8 +264,8 @@ if st.session_state.xbrl_general:
     st.subheader("📘 XBRL — Generel Analyse")
     st.write(f"**Revisionstype:** {a.get('Revisionstype')}")
     st.write(f"**Revisortype:** {a.get('Revisortype')}")
+    st.write(f"**Væsentlig aktivitet:** {st.session_state.xbrl_financial.get('Væsentlig aktivitet')}")
     st.write(f"**Going Concern:** {a.get('Going concern usikkerhed')}")
-    st.write(f"**Væsentlig aktivitet:** {a.get('Væsentlig aktivitet')}")
     st.write(f"**Korrektion af væsentlig fejl:** {a.get('Korrektion af væsentlig fejl')}")
 
     st.write("### 🗓️ Regnskabsperioder")
@@ -282,7 +282,6 @@ if st.session_state.xbrl_financial:
     st.subheader("💰 XBRL — Finansiel Analyse")
 
     st.write(f"**Valuta:** {f.get('Valuta', '')}")
-
     st.markdown("### 📊 Indtjening")
     for label, vals in f["Indtjening"].items():
         st.write(f"- **{label}:** {dk_number(vals.get('CY'))} / {dk_number(vals.get('PY'))}")
