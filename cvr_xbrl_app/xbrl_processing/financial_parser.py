@@ -29,38 +29,6 @@ from .taxonomy_map import (
     LIABILITIES,
 )
 
-
-# ---------------------------------------------------------
-# PERIOD DETECTION — Danish GAAP tags ONLY
-# ---------------------------------------------------------
-
-def _detect_years_from_dcca_tags(model):
-    """
-    Extract CY/PY using Danish GAAP period tags by scanning all facts.
-    """
-    cy_end = None
-    py_end = None
-
-    for fact in model.facts:
-        name = fact.qname.localName
-
-        if name == "ReportingPeriodEndDate":
-            try:
-                cy_end = datetime.fromisoformat(fact.value).date()
-            except Exception:
-                pass
-
-        elif name == "PredingReportingPeriodEndDate":
-            try:
-                py_end = datetime.fromisoformat(fact.value).date()
-            except Exception:
-                pass
-
-    cy_year = cy_end.year if cy_end else None
-    py_year = py_end.year if py_end else None
-
-    return cy_year, py_year
-
 # ---------------------------------------------------------
 # Helper functions
 # ---------------------------------------------------------

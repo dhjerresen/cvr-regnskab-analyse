@@ -186,6 +186,33 @@ def _normalize_revisortype(value: str) -> str:
     # -------------------------
     return "Andet"
 
+def _extract_periods_from_dcca_tags(model):
+    """
+    Extract CY/PY using Danish GAAP period tags.
+    Same logic as in financial_parser.
+    """
+    cy_start = None
+    cy_end = None
+    py_start = None
+    py_end = None
+
+    for fact in model.facts:
+        name = fact.qname.localName
+
+        if name == "ReportingPeriodStartDate":
+            cy_start = fact.value
+        elif name == "ReportingPeriodEndDate":
+            cy_end = fact.value
+        elif name == "PrecedingReportingPeriodStartDate":
+            py_start = fact.value
+        elif name == "PredingReportingPeriodEndDate":  # DCCA typo
+            py_end = fact.value
+
+    return {
+        "CY": {"start": cy_start, "end": cy_end},
+        "PY": {"start": py_start, "end": py_end},
+    }
+
 def extract_xbrl_data(filepath: str) -> dict:
     """
     Parse XBRL/iXBRL file with Arelle and extract general qualitative facts.
@@ -214,7 +241,8 @@ def extract_xbrl_data(filepath: str) -> dict:
             # Optional use of higher accounting class
             "Tilvalg af højere regnskabsklasse": _find_first(model, ACCOUNTING_CLASS_UPGRADE),
         }
-
+        data["Years"] = _extract_periods_from_dcca_tags(model)
+        
         return data
 
     except Exception as e:

@@ -256,12 +256,21 @@ if st.session_state.company:
 if st.session_state.xbrl_general:
     a = st.session_state.xbrl_general
 
+    # 🔥 Periods now come from GENERAL, not FINANCIAL
+    years = a.get("Years", {})
+    cy = years.get("CY", {})
+    py = years.get("PY", {})
+
     st.subheader("📘 XBRL — Generel Analyse")
     st.write(f"**Revisionstype:** {a.get('Revisionstype')}")
     st.write(f"**Revisortype:** {a.get('Revisortype')}")
     st.write(f"**Going Concern:** {a.get('Going concern usikkerhed')}")
     st.write(f"**Væsentlig aktivitet:** {a.get('Væsentlig aktivitet')}")
     st.write(f"**Korrektion af væsentlig fejl:** {a.get('Korrektion af væsentlig fejl')}")
+
+    st.write("### 🗓️ Regnskabsperioder")
+    st.write(f"- **CY:** {cy.get('start')} → {cy.get('end')}")
+    st.write(f"- **PY:** {py.get('start')} → {py.get('end')}")
 
 
 # =====================================================================
@@ -272,15 +281,7 @@ if st.session_state.xbrl_financial:
 
     st.subheader("💰 XBRL — Finansiel Analyse")
 
-    years = f.get("Years", {})
-    cy = years.get("CY", {})
-    py = years.get("PY", {})
-
     st.write(f"**Valuta:** {f.get('Valuta', '')}")
-
-    st.write("### 🗓️ Regnskabsperioder")
-    st.write(f"- **CY:** {cy.get('start')} → {cy.get('end')}")
-    st.write(f"- **PY:** {py.get('start')} → {py.get('end')}")
 
     st.markdown("### 📊 Indtjening")
     for label, vals in f["Indtjening"].items():
