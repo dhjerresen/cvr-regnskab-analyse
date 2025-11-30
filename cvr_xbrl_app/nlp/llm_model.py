@@ -3,22 +3,28 @@ import os
 from dotenv import load_dotenv
 import google.generativeai as genai
 
-# Load .env file
+# Load .env ONLY if running locally
+# (Hugging Face does NOT need .env, it injects secrets automatically)
 load_dotenv()
 
-# Read API key
+# Try both local and HF env vars
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
-# Configure Gemini client
+if not GEMINI_API_KEY:
+    raise ValueError(
+        "❌ GEMINI_API_KEY not found. "
+        "Set it in a local .env file or in HuggingFace Spaces → Settings → Secrets."
+    )
+
+# Configure Gemini
 genai.configure(api_key=GEMINI_API_KEY)
 
-# The ONE model used by the project
+# Single model used across project
 MODEL = "gemini-2.5-flash"
 
 def run_ai_model(prompt: str) -> str:
     """
-    Sends a prompt to Google's Gemini API using the single fixed model.
-    Used globally for:
+    Runs the single shared Gemini model for:
     - XBRL summary
     - XHTML extraction
     - XHTML summarization
@@ -26,8 +32,6 @@ def run_ai_model(prompt: str) -> str:
     try:
         model = genai.GenerativeModel(MODEL)
         response = model.generate_content(prompt)
-
-        # Gemini returns a response object with .text
         return response.text.strip()
 
     except Exception as e:
