@@ -2,8 +2,6 @@ import streamlit as st
 import pandas as pd
 import tempfile
 import requests
-import json
-import os
 
 # ---------------- Local imports ----------------
 from data_fetch.cvr_api import hent_cvr_data
@@ -305,7 +303,7 @@ Denne sammenfatning inkluderer:
     if st.button("Generer samlet sammenfatning"):
         with st.spinner("Kører LLM..."):
 
-            # 1️⃣ Generate XBRL summary (STRICT format)
+            # Generate XBRL summary (STRICT format)
             json_payload = transform_xbrl_to_json(
                 st.session_state.xbrl_general,
                 st.session_state.xbrl_financial
@@ -313,7 +311,7 @@ Denne sammenfatning inkluderer:
             prompt_xbrl = build_summary_prompt(json_payload)
             xbrl_summary = run_ai_model(prompt_xbrl).strip()
 
-            # 2️⃣ Ledelsesberetning summary (if exists)
+            # Ledelsesberetning summary (if exists)
             led_text = st.session_state.ledelsesberetning
             led_summary = ""
 
@@ -323,7 +321,7 @@ Denne sammenfatning inkluderer:
                     run_llm_fn=run_ai_model
                 ).strip()
 
-            # 3️⃣ Combine
+            # Combine
             if led_summary:
                 final_output = (
                     xbrl_summary
