@@ -1,12 +1,9 @@
 # data_fetch/regnskab_api.py
 
 import requests
+from datetime import datetime
 
 def classify_filetype(mime: str, url: str) -> str:
-    """
-    PDF, iXBRL, XBRL classification.
-    No ZIP logic (not needed).
-    """
     url_low = url.lower().split("?", 1)[0]
 
     if mime == "application/pdf" or url_low.endswith(".pdf"):
@@ -19,6 +16,21 @@ def classify_filetype(mime: str, url: str) -> str:
         return "XBRL"
 
     return "XBRL"
+
+
+def is_annual_report(period):
+    start = period.get("startDato")
+    end = period.get("slutDato")
+    if not start or not end:
+        return False
+    try:
+        d1 = datetime.fromisoformat(start[:10])
+        d2 = datetime.fromisoformat(end[:10])
+    except:
+        return False
+
+    days = (d2 - d1).days
+    return 350 <= days <= 380
 
 
 def hent_regnskaber(cvr: int) -> list[dict]:
@@ -47,7 +59,6 @@ def hent_regnskaber(cvr: int) -> list[dict]:
 
         data = resp.json()
         hits = data.get("hits", {}).get("hits", [])
-
         if not hits:
             return []
 
@@ -55,12 +66,18 @@ def hent_regnskaber(cvr: int) -> list[dict]:
         for hit in hits:
             src = hit.get("_source", {})
             periode = src.get("regnskab", {}).get("regnskabsperiode", {})
+
+            # --- FILTER: ONLY ANNUAL REPORTS ---
+            if not is_annual_report(periode):
+                continue
+
             offentliggjort = src.get("offentliggoerelsesTidspunkt", "")
             dokumenter = src.get("dokumenter", [])
 
             for d in dokumenter:
                 mime = d.get("dokumentMimeType", "")
                 url = d.get("dokumentUrl", "")
+                description = d.get("dokumentType", "")
                 filetype = classify_filetype(mime, url)
 
                 regnskaber.append({
@@ -69,8 +86,11 @@ def hent_regnskaber(cvr: int) -> list[dict]:
                     "Offentliggjort": offentliggjort,
                     "Filtype": filetype,
                     "Url": url,
+                    "Beskrivelse": description,
                 })
 
+        # Sort by end date (newest first)
+        regnskaber.sort(key=lambda r: r["Slutdato"], reverse=True)
         return regnskaber
 
     except requests.RequestException as e:
