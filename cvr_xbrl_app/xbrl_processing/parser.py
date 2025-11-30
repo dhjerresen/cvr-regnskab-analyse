@@ -105,7 +105,8 @@ def _normalize_revisionstype(value: str) -> str:
         "revision",
         "revideret regnskab",
         "aflagt med revision",
-        "revisionsfirma"
+        "revisionsfirma",
+        "audited financial statements",
     ]):
         return "Revision"
 
@@ -153,6 +154,7 @@ def _normalize_revisortype(value: str) -> str:
     if any(x in v for x in [
         "statsautoriseret",
         "state-authorised",
+        "state authorised",
         "statsaut."
     ]):
         return "Statsautoriseret revisor"
