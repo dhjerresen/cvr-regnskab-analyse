@@ -2,6 +2,7 @@
 import json
 
 def build_summary_prompt(xbrl_json: dict):
+    period_label = xbrl_json["financial_analysis"]["periods"]["CY"]["label"]
     json_text = json.dumps(xbrl_json, ensure_ascii=False, indent=2)
 
     return f"""
@@ -28,7 +29,8 @@ SPROG OG FORMATERING
 - Brug dansk tusindtalsformat med punktum (fx 1.234.567).
 - Tal må ikke have decimaler (ingen “,00”).
 - Valuta (fx DKK) nævnes kun én gang i finans-afsnittet.
-- Anvend periodens 'label' fra JSON (fx “2024/25” eller “2024”).
+- Perioden for rapporten er: {period_label}
+- Modellen SKAL anvende denne periode i finansafsnittet.
 - Undgå at skrive sætninger hvor både CY og PY er “ikke rapporteret”.
 - Skriv kort, fagligt og nøgternt – samme stil som eksemplet.
 
