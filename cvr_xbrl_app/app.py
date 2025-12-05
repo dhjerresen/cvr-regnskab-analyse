@@ -202,6 +202,26 @@ if st.session_state.extra_xbrl_path:
         mime="application/xml"
     )
 
+# =====================================================================
+#                    DOWNLOAD JSON DEBUG FIL
+# =====================================================================
+if st.session_state.xbrl_general and st.session_state.xbrl_financial:
+    st.subheader("🧩 Download genereret JSON (debug)")
+
+    json_debug = transform_xbrl_to_json(
+        st.session_state.xbrl_general,
+        st.session_state.xbrl_financial
+    )
+
+    import json
+    json_bytes = json.dumps(json_debug, indent=4, ensure_ascii=False).encode("utf-8")
+
+    st.download_button(
+        label="⬇️ Download JSON debug-fil",
+        data=json_bytes,
+        file_name="xbrl_debug.json",
+        mime="application/json",
+    )
 
 # =====================================================================
 #                DISPLAY COMPANY INFORMATION
