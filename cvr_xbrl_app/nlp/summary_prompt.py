@@ -11,7 +11,7 @@ Du får her strukturerede XBRL-data fra en årsrapport i JSON-format. Du skal sk
 EKSEMPEL PÅ STIL, STRUKTUR OG LÆNGDE  
 (Du skal efterligne dette 1:1 i tone, format, længde og opbygning)
 
-Selskabets væsentlige aktiviteter består af at drive VVS-virksomhed. Årsrapporten for perioden 2024/25 er aflagt efter regnskabsklasse B og er forsynet med en udvidet gennemgang udført af en registreret revisor. Der er ingen bemærkninger vedrørende going concern eller væsentlige fejl.
+Selskabets væsentlige aktiviteter består af at drive VVS-virksomhed. Årsrapporten for perioden 2024/25 er aflagt efter regnskabsklasse B med tilvalg fra en højere klasse og er forsynet med en udvidet gennemgang udført af en registreret revisor. Der er ingen bemærkninger vedrørende going concern eller væsentlige fejl.
 
 Bruttofortjenesten er steget fra 9.023.590 til 10.574.310 i perioden 2024/25. Driftsresultatet steg fra 1.106.268 til 1.216.244. Årets resultat forbedredes fra 919.324 til 947.982. Egenkapitalen voksede fra 2.039.513 til 2.087.495. Soliditetsgraden steg fra 43,83 % til 44,71 %.
 ────────────────────────────────────────
