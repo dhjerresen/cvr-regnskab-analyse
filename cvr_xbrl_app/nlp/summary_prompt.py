@@ -30,7 +30,7 @@ SPROG OG FORMATERING
 - Tal må ikke have decimaler (ingen “,00”).
 - Valuta (fx DKK) nævnes kun én gang i finans-afsnittet.
 - Perioden for rapporten er: {period_label}
-- Modellen SKAL anvende denne periode i finansafsnittet.
+- Modellen SKAL anvende denne periode i første afsnit i lighed med eksemplet.
 - Undgå at skrive sætninger hvor både CY og PY er “ikke rapporteret”.
 - Skriv kort, fagligt og nøgternt – samme stil som eksemplet.
 
