@@ -5,12 +5,15 @@ financial_parser.py — CORRECTED VERSION
 ----------------------------------------
 Fixes wrong equity values caused by dimensioned Equity facts (e.g. dividend, retained earnings).
 This version extracts Assets / Equity / Liabilities ONLY from balance total contexts (c4, c3).
+
+Additionally:
+Fixes income-statement extraction by ignoring dimensioned contexts (associates, equity movements, dividends).
 """
 
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Iterable, Optional, Tuple, Dict
+from typing import Iterable, Optional
 
 from .arelle_loader import load_model
 from .taxonomy_map import (
@@ -23,7 +26,6 @@ from .taxonomy_map import (
     LIABILITIES,
     MAIN_ACTIVITY,
 )
-
 
 # ---------------------------------------------------------
 # Helper functions
@@ -96,7 +98,6 @@ def _extract_balance_contexts(model):
     if not candidates:
         return None, None
 
-    # Sort by date descending → newest = CY
     sorted_dates = sorted(candidates.keys(), reverse=True)
 
     cy_ctx = candidates[sorted_dates[0]]
@@ -182,21 +183,30 @@ def extract_financials(filepath: str) -> dict:
         currency = _get_currency_from_units(model)
 
         # -------------------------------------------------
-        # INCOME STATEMENT (unchanged)
+        # INCOME STATEMENT — FIXED VERSION
         # -------------------------------------------------
         def two_years(concepts):
             vals = {}
+
             for fact in model.facts:
                 if fact.qname.localName not in concepts:
                     continue
-                if fact.context is None:
+                ctx = fact.context
+                if ctx is None:
                     continue
-                end = _get_context_end_date(fact.context)
+
+                # ❗ FIX: ignore dimensional contexts (associates, equity movements, dividends, etc.)
+                if getattr(ctx, "scenario", None) is not None:
+                    continue
+
+                end = _get_context_end_date(ctx)
                 if not end:
                     continue
+
                 num = _parse_numeric(fact.value)
                 if num is None:
                     continue
+
                 vals[end.date()] = num
 
             if not vals:
@@ -213,7 +223,7 @@ def extract_financials(filepath: str) -> dict:
         nr_cy, nr_py = two_years(NET_RESULT)
 
         # -------------------------------------------------
-        # BALANCE SHEET — FIXED VERSION
+        # BALANCE SHEET — FIXED VERSION (unchanged)
         # -------------------------------------------------
         cy_ctx, py_ctx = _extract_balance_contexts(model)
 
