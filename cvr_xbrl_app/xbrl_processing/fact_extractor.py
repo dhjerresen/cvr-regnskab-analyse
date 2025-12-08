@@ -71,15 +71,3 @@ def get_fact(model_xbrl, local_name: str) -> Optional[str]:
         if fact.qname.localName == local_name and fact.value not in ("", None):
             return str(fact.value).strip()
     return None
-
-
-def get_all_text_facts(model_xbrl) -> list[str]:
-    """
-    Extract all non-empty fact values as plain strings.
-    Useful for fallback text search if needed.
-    """
-    facts: list[str] = []
-    for fact in _iter_facts(model_xbrl):
-        if fact.value and isinstance(fact.value, str) and len(fact.value.strip()) > 5:
-            facts.append(fact.value.strip())
-    return facts
