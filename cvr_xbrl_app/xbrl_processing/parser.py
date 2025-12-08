@@ -88,7 +88,7 @@ def _normalize_revisionstype(value: str) -> str:
     # -------------------------
     if any(x in v for x in [
         "ingen bistand",
-        "ingen",                       # generic
+        "ingen",
         "uden revisor",
         "ikke revideret",
         "uden revision",
@@ -106,7 +106,7 @@ def _normalize_revisionstype(value: str) -> str:
         "assistance",
         "revisorassistance",
         "udarbejdet med bistand",
-        "udarbejdet uden",  # e.g. "udarbejdet uden revisor"
+        "udarbejdet uden",
         "kompilering"
     ]):
         return "Assistance"
@@ -119,7 +119,7 @@ def _normalize_revisionstype(value: str) -> str:
         "udvidet gennemgang",
         "udv. gennemgang",
         "gennemgangserklæring",
-        "gennemgang"  # careful but safe: most Danish uses are "udvidet gennemgang"
+        "gennemgang"
     ]):
         return "Udvidet Gennemgang"
 

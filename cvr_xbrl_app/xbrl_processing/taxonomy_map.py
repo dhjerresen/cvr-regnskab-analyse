@@ -2,7 +2,7 @@
 """
 Minimal taxonomy update:
 - Keeps your existing field structure
-- Adds IFRS/ESEF equivalents for Spar Nord and other listed companies
+- Adds IFRS/ESEF equivalents
 - No extra concepts or expanded extraction
 """
 

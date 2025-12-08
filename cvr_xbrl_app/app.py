@@ -187,7 +187,7 @@ if st.session_state.instance_path:
 
 
 # =====================================================================
-# EXTRA DOWNLOAD: Supplemental XBRL
+#                   EXTRA DOWNLOAD: Supplemental XBRL
 # =====================================================================
 if st.session_state.extra_xbrl_path:
     st.subheader("📦 Ekstra: Årsrapport XBRL (supplerende fil)")
@@ -203,7 +203,7 @@ if st.session_state.extra_xbrl_path:
     )
 
 # =====================================================================
-#                    DOWNLOAD JSON DEBUG FIL
+#                   DOWNLOAD JSON DEBUG FIL
 # =====================================================================
 if st.session_state.xbrl_general and st.session_state.xbrl_financial:
     st.subheader("🧩 Download genereret JSON (debug)")
@@ -288,7 +288,7 @@ if st.session_state.xbrl_financial:
 
 
 # =====================================================================
-#          MANUAL LEDERSESBERETNING INPUT (MOVED BEFORE SUMMARY)
+#          MANUAL LEDERSESBERETNING INPUT
 # =====================================================================
 if st.session_state.company:
     st.subheader("📥 Indsæt Ledelsesberetning (valgfrit)")

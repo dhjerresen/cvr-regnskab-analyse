@@ -64,7 +64,7 @@ def load_model(filepath: str):
         FileSource.openFileSource(patched, cntlr),
         xbrlResourceDir=TAXONOMY_DIR,
         loadschemareferences=True,
-        inferIxbrl=True,  # keep as required by your other code
+        inferIxbrl=True,
         ixbrl=True,
         validate=False
     )

@@ -127,7 +127,7 @@ def _get_value_for_context(model, names: Iterable[str], ctx_id: str) -> Optional
 
 
 # ---------------------------------------------------------
-# TEXT EXTRACTION (unchanged)
+# TEXT EXTRACTION
 # ---------------------------------------------------------
 
 IFRS_ACTIVITY_NAMES = {
@@ -183,7 +183,7 @@ def extract_financials(filepath: str) -> dict:
         currency = _get_currency_from_units(model)
 
         # -------------------------------------------------
-        # INCOME STATEMENT — FIXED VERSION
+        # INCOME STATEMENT
         # -------------------------------------------------
         def two_years(concepts):
             vals = {}
@@ -195,7 +195,6 @@ def extract_financials(filepath: str) -> dict:
                 if ctx is None:
                     continue
 
-                # ❗ FIX: ignore dimensional contexts (associates, equity movements, dividends, etc.)
                 if getattr(ctx, "scenario", None) is not None:
                     continue
 
