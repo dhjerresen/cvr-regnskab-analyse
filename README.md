@@ -162,7 +162,6 @@ Paste it manually before summarization.
 - Add caching or a local database for repeated analyses  
 - Expand unit tests with mocked CVR/Virk/Arelle responses  
 - Optional PDF fallback extraction  
-- Deployment template (Docker + cloud)  
 
 ---
 
