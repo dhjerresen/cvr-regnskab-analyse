@@ -1,4 +1,3 @@
-```markdown
 # CVR & Financial Statement Analysis  
 A Streamlit application for automated retrieval, parsing, and analysis of Danish annual reports using CVR, Virk, Arelle, and Gemini.  
 The tool extracts XBRL/iXBRL data, computes financial metrics, displays audit information, and optionally generates natural-language summaries.
@@ -173,4 +172,3 @@ MIT License (or specify your chosen license)
 ---
 
 Enjoy analyzing Danish financial statements!
-```
