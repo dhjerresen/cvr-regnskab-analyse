@@ -19,7 +19,6 @@ The tool extracts XBRL/iXBRL data, computes financial metrics, displays audit in
 8. Data Flow  
 9. Troubleshooting  
 10. Future Development  
-11. License  
 
 ---
 
@@ -162,11 +161,6 @@ Paste it manually before summarization.
 - Add caching or a local database for repeated analyses  
 - Expand unit tests with mocked CVR/Virk/Arelle responses  
 - Optional PDF fallback extraction  
-
----
-
-## 📄 License
-MIT License (or specify your chosen license)
 
 ---
 
